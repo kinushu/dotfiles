@@ -1,11 +1,16 @@
 dotfiles
 ========
 
-1. Create dotfilesLink.sh
-2. Chmod
+## 初期設定
 
-	$ chmod +x dotfilesLink.sh
-	$ ./dotfilesLink.sh
+```bash
+git clone git@github.com:kinushu/dotfiles.git ~/dotfiles
+cd ~/dotfiles
+make init
+make deploy
+```
 
-3. git push
+## 環境ごとの独自設定
 
+~/.bashrc.local
+に記述。

@@ -8,7 +8,7 @@ export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
 eval "$(rbenv init -)"
 
 export GOPATH=$HOME/go
-export PATH=$PATH:$GOPATH/bin
+export PATH=$GOPATH/bin:$PATH
 
 export PATH=$HOME/bin:$PATH
 

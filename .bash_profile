@@ -22,3 +22,9 @@ if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+alias mem='top -o rsize'
+alias cpu='top -o cpu'

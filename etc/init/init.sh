@@ -16,6 +16,7 @@ brew install zsh curl
 brew install vim less lesspipe
 brew install trash tree
 brew install mas
+brew install pyenv
 
 # ruby
 git clone https://github.com/rbenv/rbenv.git ~/.rbenv

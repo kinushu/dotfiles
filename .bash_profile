@@ -7,6 +7,12 @@ export PATH="/usr/local/opt/openssl/bin:$PATH"
 export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
 eval "$(rbenv init -)"
 
+
+export PYENV_ROOT=${HOME}/.pyenv
+export PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:$PATH
+export PYTHONUSERBASE=${HOME}/.pip_local
+export PATH=${PYTHONUSERBASE}/bin:$PATH
+
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 

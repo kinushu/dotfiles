@@ -18,6 +18,12 @@ brew install trash tree
 brew install mas
 brew install zlib pyenv
 
+# git-secrets
+brew install git-secrets
+git secrets --install ~/.git-templates/git-secrets
+git config --global init.templatedir '~/.git-templates/git-secrets'
+# git secrets --install # for repository folder
+
 # ruby
 git clone https://github.com/rbenv/rbenv.git ~/.rbenv
 curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash

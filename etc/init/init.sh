@@ -22,6 +22,9 @@ brew install zlib pyenv
 brew install git-secrets
 git secrets --install ~/.git-templates/git-secrets
 git config --global init.templatedir '~/.git-templates/git-secrets'
+git secrets --register-aws --global
+git secrets --add 'private_key' --global
+git secrets --add 'private_key_id' --global
 # git secrets --install # for repository folder
 
 # ruby

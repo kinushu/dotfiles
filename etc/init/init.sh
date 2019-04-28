@@ -21,8 +21,6 @@ brew install pyenv
 # ruby
 git clone https://github.com/rbenv/rbenv.git ~/.rbenv
 curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
-rbenv install 2.3.8
-rbenv global 2.3.8
 gem update --system
 gem i bundler
 

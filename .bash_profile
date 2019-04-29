@@ -24,13 +24,12 @@ if which lesspipe.sh > /dev/null; then
   export LESSOPEN='| /usr/bin/env lesspipe.sh %s 2>&-'
 fi
 
+if [[ -f ~/.bashrc ]]; then
+    source ~/.bashrc
+fi
+
 if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
 
-alias mem='top -o rsize'
-alias cpu='top -o cpu'

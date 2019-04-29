@@ -12,7 +12,7 @@ fi
 
 # brew using
 brew install git tig gibo
-brew install zsh curl
+brew install zsh curl peco fzf
 brew install vim less lesspipe
 brew install trash tree
 brew install mas
@@ -26,6 +26,7 @@ git secrets --register-aws --global
 git secrets --add 'private_key' --global
 git secrets --add 'private_key_id' --global
 # git secrets --install # for repository folder
+# less ~/.gitconfig # 設定確認
 
 # ruby
 git clone https://github.com/rbenv/rbenv.git ~/.rbenv
@@ -39,3 +40,5 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 brew install go
 go get github.com/motemen/ghq
 go get github.com/sonots/lltsv
+
+ghq get https://github.com/rupa/z

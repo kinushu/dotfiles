@@ -4,15 +4,16 @@ export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin
 
 export PATH="/usr/local/opt/openssl/bin:$PATH"
 
+# Ruby
 export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
-eval "$(rbenv init -)"
 
-
+# Python
 export PYENV_ROOT=${HOME}/.pyenv
 export PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:$PATH
 export PYTHONUSERBASE=${HOME}/.pip_local
 export PATH=${PYTHONUSERBASE}/bin:$PATH
 
+# Go
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 

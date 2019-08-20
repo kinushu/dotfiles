@@ -25,6 +25,8 @@ if which lesspipe.sh > /dev/null; then
   export LESSOPEN='| /usr/bin/env lesspipe.sh %s 2>&-'
 fi
 
+alias brew="PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin brew"
+
 if [[ -f ~/.bashrc ]]; then
     source ~/.bashrc
 fi

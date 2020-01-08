@@ -18,6 +18,8 @@ brew install trash tree
 brew install mas
 brew install zlib pyenv
 
+brew cask install google-cloud-sdk
+
 # git-secrets
 brew install git-secrets
 git secrets --install ~/.git-templates/git-secrets

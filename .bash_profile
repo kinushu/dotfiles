@@ -21,6 +21,13 @@ export PATH=$HOME/bin:$PATH
 
 export MANPATH=/opt/local/man:$MANPATH
 
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc' ]; then . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc' ]; then . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'; fi
+
+
 if which lesspipe.sh > /dev/null; then
   export LESSOPEN='| /usr/bin/env lesspipe.sh %s 2>&-'
 fi

@@ -44,3 +44,7 @@ go get github.com/motemen/ghq
 go get github.com/sonots/lltsv
 
 ghq get https://github.com/rupa/z
+
+## python
+
+pip install yq

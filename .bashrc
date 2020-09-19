@@ -30,8 +30,8 @@ find_cd() {
 }
 alias fd='find_cd'
 
-# ghqのlist一覧から選択して移動します。
-alias gh='cd $(ghq list -p | peco)'
+# ghコマンドリリースされたため、中止 ghqのlist一覧から選択して移動します。
+# alias gh='cd $(ghq list -p | peco)'
 
 alias ..='cd ..'
 alias ...='cd ../..'

@@ -27,6 +27,9 @@ else
   git clone https://github.com/rbenv/rbenv.git ~/.rbenv
   git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
 
+  rbenv global system
+  ruby -v
+
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
   gem update --system
 fi

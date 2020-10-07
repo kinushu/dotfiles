@@ -1,5 +1,9 @@
 #!/bin/zsh
 
+set +eu
+
+source $HOME/.zshrc
+
 set -eu
 
 echo $PATH

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -eu
+
 echo 'touch ~/.bashrc.local'
 touch ~/.bashrc.local
 
@@ -30,10 +32,14 @@ git secrets --add 'private_key_id' --global
 # git secrets --install # for repository folder
 # less ~/.gitconfig # 設定確認
 
-# ruby
-git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
-gem update --system
+# Ruby
+if [[ -d ~/.rbenv ]]; then
+  echo 'Ruby already installed.'
+else
+  git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+  curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
+  gem update --system
+fi
 gem install bundler
 gem install bundler -v '~> 1.17.3'
 

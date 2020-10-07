@@ -1,4 +1,4 @@
-name: CI
+name: Test for macOS install
 
 on: [push]
 
@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@v1
       - name: Test
         run: |
-          # sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
+          sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
           make deploy
           make init
           make test

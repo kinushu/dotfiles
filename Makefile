@@ -19,7 +19,7 @@ init: ## Setup environment settings
 	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/init/init.sh
 
 test: ## Test dotfiles and init scripts
-	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/test/test.sh
+	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/test/test.sh
 	@echo "test is inactive temporarily"
 
 update: ## Fetch changes for this repo

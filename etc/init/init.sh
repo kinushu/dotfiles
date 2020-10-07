@@ -7,7 +7,7 @@ touch ~/.bashrc.local
 if [[ -f /usr/local/bin/brew ]]; then
     echo 'brew already installed.'
 else
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 fi
 
 # brew using
@@ -34,7 +34,8 @@ git secrets --add 'private_key_id' --global
 git clone https://github.com/rbenv/rbenv.git ~/.rbenv
 curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
 gem update --system
-gem i bundler
+gem install bundler
+gem install bundler -v '~> 1.17.3'
 
 # oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"

@@ -28,6 +28,8 @@ else
   git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
 
   rbenv global system
+  rbenv rehash
+  which ruby
   ruby -v
 
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash

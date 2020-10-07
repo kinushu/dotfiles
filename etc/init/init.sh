@@ -2,6 +2,8 @@
 
 set -eu
 
+source $HOME/.bash_profile
+
 echo 'touch ~/.bashrc.local'
 touch ~/.bashrc.local
 
@@ -15,22 +17,6 @@ fi
 # brew using
 brew install git tig gibo
 brew install zsh curl peco fzf
-brew install vim less lesspipe
-brew install trash tree
-brew install mas
-brew install zlib pyenv
-
-brew cask install google-cloud-sdk
-
-# git-secrets
-brew install git-secrets
-git secrets --install ~/.git-templates/git-secrets
-git config --global init.templatedir '~/.git-templates/git-secrets'
-git secrets --register-aws --global
-git secrets --add 'private_key' --global
-git secrets --add 'private_key_id' --global
-# git secrets --install # for repository folder
-# less ~/.gitconfig # 設定確認
 
 # Ruby
 if [[ -d ~/.rbenv ]]; then
@@ -43,15 +29,36 @@ fi
 gem install bundler
 gem install bundler -v '~> 1.17.3'
 
-# oh-my-zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-
+## Go
 brew install go
 go get github.com/motemen/ghq
 go get github.com/sonots/lltsv
 
 ghq get https://github.com/rupa/z
 
-## python
+## Python
 
 pip install yq
+
+# git-secrets
+brew install git-secrets
+git secrets --install ~/.git-templates/git-secrets
+git config --global init.templatedir '~/.git-templates/git-secrets'
+git secrets --register-aws --global
+git secrets --add 'private_key' --global
+git secrets --add 'private_key_id' --global
+# git secrets --install # for repository folder
+# less ~/.gitconfig # 設定確認
+
+
+
+
+# oh-my-zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+brew install vim less lesspipe
+brew install trash tree
+brew install mas
+brew install zlib pyenv
+
+brew cask install google-cloud-sdk

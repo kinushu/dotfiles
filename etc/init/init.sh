@@ -36,7 +36,7 @@ gem install bundler -v '~> 1.17.3'
 brew install go
 brew upgrade go
 go get github.com/motemen/ghq
-go get github.com/sonots/lltsv
+# go get github.com/sonots/lltsv
 
 ghq get https://github.com/rupa/z
 

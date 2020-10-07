@@ -18,13 +18,14 @@ fi
 
 # brew using
 brew install git tig gibo
-brew install zsh curl peco fzf
 
 # Ruby
 if [[ -d ~/.rbenv ]]; then
   echo 'Ruby already installed.'
 else
   git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+  git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
   gem update --system
 fi
@@ -53,7 +54,7 @@ git secrets --add 'private_key_id' --global
 # less ~/.gitconfig # 設定確認
 
 
-
+brew install zsh curl peco fzf
 
 # oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"

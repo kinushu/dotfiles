@@ -1,8 +1,10 @@
 #!/bin/bash
 
-set -eu
+set +eu
 
 source $HOME/.bash_profile
+
+set -eu
 
 echo 'touch ~/.bashrc.local'
 touch ~/.bashrc.local

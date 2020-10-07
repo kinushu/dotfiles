@@ -1,4 +1,6 @@
 
+echo ".bash_profile start"
+
 export PATH=/usr/local/bin:/usr/local/sbin:$PATH
 export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin
 
@@ -36,4 +38,5 @@ if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
+echo ".bash_profile end"
 

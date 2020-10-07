@@ -18,6 +18,7 @@ fi
 
 # brew using
 brew install git tig gibo
+brew install zlib
 
 # Ruby
 if [[ -d ~/.rbenv ]]; then
@@ -38,10 +39,11 @@ brew upgrade go
 go get github.com/motemen/ghq
 # go get github.com/sonots/lltsv
 
+## ghq
 ghq get https://github.com/rupa/z
 
 ## Python
-
+brew install pyenv
 pip install yq
 
 # git-secrets
@@ -63,6 +65,5 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 brew install vim less lesspipe
 brew install trash tree
 brew install mas
-brew install zlib pyenv
 
 brew cask install google-cloud-sdk

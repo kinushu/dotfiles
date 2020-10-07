@@ -13,3 +13,4 @@ jobs:
           # sudo /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/uninstall.sh)"
           make deploy
           make init
+          make test

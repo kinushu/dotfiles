@@ -4,7 +4,7 @@ echo "test start."
 
 set +eu
 
-source $HOME/.zshrc
+source $HOME/.bash_profile
 
 set -eu
 

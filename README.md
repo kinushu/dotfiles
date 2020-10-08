@@ -6,8 +6,8 @@ dotfiles
 ```bash
 git clone git@github.com:kinushu/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-make init
 make deploy
+make init
 ```
 
 ## 環境ごとの独自設定

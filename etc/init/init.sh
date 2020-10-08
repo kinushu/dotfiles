@@ -1,4 +1,10 @@
-#!/bin/sh
+#!/bin/bash
+
+set +eu
+
+source $HOME/.bash_profile
+
+set -eu
 
 echo 'touch ~/.bashrc.local'
 touch ~/.bashrc.local
@@ -12,13 +18,38 @@ fi
 
 # brew using
 brew install git tig gibo
-brew install zsh curl peco fzf
-brew install vim less lesspipe
-brew install trash tree
-brew install mas
-brew install zlib pyenv
+brew install zlib
 
-brew cask install google-cloud-sdk
+# Ruby
+if [[ -d ~/.rbenv ]]; then
+  echo 'Ruby already installed.'
+else
+  git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+  git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+
+  rbenv global system
+  rbenv rehash
+  which ruby
+  ruby -v
+
+  curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
+  gem update --system
+fi
+gem install bundler
+gem install bundler -v '~> 1.17.3'
+
+## Go
+brew install go
+brew upgrade go
+go get github.com/motemen/ghq
+# go get github.com/sonots/lltsv
+
+## ghq
+ghq get https://github.com/rupa/z
+
+## Python
+brew install pyenv
+pip install yq
 
 # git-secrets
 brew install git-secrets
@@ -30,22 +61,14 @@ git secrets --add 'private_key_id' --global
 # git secrets --install # for repository folder
 # less ~/.gitconfig # 設定確認
 
-# ruby
-git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
-gem update --system
-gem install bundler
-gem install bundler -v '~> 1.17.3'
+
+brew install zsh curl peco fzf
 
 # oh-my-zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
-brew install go
-go get github.com/motemen/ghq
-go get github.com/sonots/lltsv
+brew install vim less lesspipe
+brew install trash tree
+brew install mas
 
-ghq get https://github.com/rupa/z
-
-## python
-
-pip install yq
+brew cask install google-cloud-sdk

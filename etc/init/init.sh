@@ -33,7 +33,6 @@ else
   ruby -v
 
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
-  gem update --system
 fi
 gem install bundler
 gem install bundler -v '~> 1.17.3'

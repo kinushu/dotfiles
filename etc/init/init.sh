@@ -34,8 +34,6 @@ else
 
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
 fi
-gem install bundler
-gem install bundler -v '~> 1.17.3'
 
 ## Go
 brew install go
@@ -59,7 +57,6 @@ git secrets --add 'private_key' --global
 git secrets --add 'private_key_id' --global
 # git secrets --install # for repository folder
 # less ~/.gitconfig # 設定確認
-
 
 brew install zsh curl peco fzf
 

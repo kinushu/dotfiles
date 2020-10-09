@@ -12,4 +12,5 @@ jobs:
         run: |
           make deploy
           make init
+          make update
           make test

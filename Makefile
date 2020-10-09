@@ -27,6 +27,7 @@ update: ## Fetch changes for this repo
 	git submodule init
 	git submodule update
 	git submodule foreach git pull origin master
+	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/update/update.sh
 
 install: update deploy init ## Run make update, deploy, init
 	@exec $$SHELL

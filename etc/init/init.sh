@@ -61,11 +61,17 @@ else
   # less ~/.gitconfig # 設定確認
 fi
 
-
-brew install zsh curl peco fzf
-
+brew install zsh
 # oh-my-zsh
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+if [[ -d ~/.oh-my-zsh ]]; then
+  echo 'oh-my-zsh already installed.'
+else
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+fi
+
+echo 'library install.'
+
+set +eu
 
 brew install vim less lesspipe
 brew install trash tree
@@ -81,3 +87,7 @@ go get github.com/motemen/ghq
 ghq get https://github.com/rupa/z
 
 pip install yq
+
+brew install curl peco fzf
+
+echo 'fin.'

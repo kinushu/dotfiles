@@ -23,6 +23,7 @@ brew install git tig gibo zlib
 if [[ -d ~/.rbenv ]]; then
   echo 'Ruby already installed.'
 else
+  brew install ruby
   git clone https://github.com/rbenv/rbenv.git ~/.rbenv
   git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
 

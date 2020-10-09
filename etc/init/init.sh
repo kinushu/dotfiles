@@ -45,18 +45,24 @@ go get github.com/motemen/ghq
 ghq get https://github.com/rupa/z
 
 ## Python
-brew install pyenv
-pip install yq
+brew install python
+if [[ -d ~/.pyenv ]]; then
+  echo 'Python already installed.'
+else
+  git clone https://github.com/pyenv/pyenv.git ~/.pyenv
+  pyenv global system
+  pyenv rehash
+fi
 
 # git-secrets
-brew install git-secrets
-git secrets --install ~/.git-templates/git-secrets
-git config --global init.templatedir '~/.git-templates/git-secrets'
-git secrets --register-aws --global
-git secrets --add 'private_key' --global
-git secrets --add 'private_key_id' --global
-# git secrets --install # for repository folder
-# less ~/.gitconfig # 設定確認
+  brew install git-secrets
+  git secrets --install ~/.git-templates/git-secrets
+  git config --global init.templatedir '~/.git-templates/git-secrets'
+  git secrets --register-aws --global
+  git secrets --add 'private_key' --global
+  git secrets --add 'private_key_id' --global
+  # git secrets --install # for repository folder
+  # less ~/.gitconfig # 設定確認
 
 brew install zsh curl peco fzf
 

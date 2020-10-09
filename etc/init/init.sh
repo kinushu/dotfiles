@@ -17,8 +17,7 @@ else
 fi
 
 # brew using
-brew install git tig gibo
-brew install zlib
+brew install git tig gibo zlib
 
 # Ruby
 if [[ -d ~/.rbenv ]]; then
@@ -37,12 +36,6 @@ fi
 
 ## Go
 brew install go
-brew upgrade go
-go get github.com/motemen/ghq
-# go get github.com/sonots/lltsv
-
-## ghq
-ghq get https://github.com/rupa/z
 
 ## Python
 brew install python
@@ -55,6 +48,9 @@ else
 fi
 
 # git-secrets
+if [[ -f ~/.git-templates/git-secrets/hooks/commit-msg ]]; then
+  echo 'git-secrets already installed.'
+else
   brew install git-secrets
   git secrets --install ~/.git-templates/git-secrets
   git config --global init.templatedir '~/.git-templates/git-secrets'
@@ -63,6 +59,8 @@ fi
   git secrets --add 'private_key_id' --global
   # git secrets --install # for repository folder
   # less ~/.gitconfig # 設定確認
+fi
+
 
 brew install zsh curl peco fzf
 
@@ -74,3 +72,12 @@ brew install trash tree
 brew install mas
 
 brew cask install google-cloud-sdk
+
+## ghq
+go get github.com/motemen/ghq
+# go get github.com/sonots/lltsv
+
+## Go lib
+ghq get https://github.com/rupa/z
+
+pip install yq

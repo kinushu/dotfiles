@@ -107,6 +107,7 @@ cask "vagrant"
 cask "virtualbox"
 cask "visual-studio-code"
 cask "vlc"
+cask "blackhole"
 mas "1Password 7", id: 1333542190
 mas "Bandwidth+", id: 490461369
 mas "BetterSnapTool", id: 417375580

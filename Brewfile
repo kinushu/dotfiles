@@ -84,10 +84,7 @@ cask "handbrake"
 cask "handbrakebatch"
 cask "imageoptim"
 cask "iterm2"
-cask "java"
 cask "libreoffice"
-cask "marp"
-cask "menumeters"
 cask "mi"
 cask "microsoft-edge"
 cask "musescore"
@@ -123,7 +120,6 @@ mas "Parallels Client", id: 600925318
 mas "Sequel Ace", id: 1518036000
 mas "SiteSucker", id: 442168834
 mas "Switch Plus", id: 434744386
-mas "TextScrub", id: 600842582
 mas "The Unarchiver", id: 425424353
 mas "Twitter", id: 1482454543
 mas "WinArchiver", id: 413215883

@@ -80,7 +80,7 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 # z command
-source ~/.ghq/github.com/rupa/z/z.sh
+source ~/ghq/github.com/rupa/z/z.sh
 
 # ctrl+f で 良く行くフォルダに移動
 function peco-z-search

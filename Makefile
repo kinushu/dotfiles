@@ -27,10 +27,13 @@ update: ## Fetch changes for this repo
 	git submodule init
 	git submodule update
 	git submodule foreach git pull origin master
-	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/update/update.sh
+
 
 install: update deploy init ## Run make update, deploy, init
 	@exec $$SHELL
+
+upgrade: update
+	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/upgrade/upgrade.sh
 
 clean: ## Remove the dot files and this repo
 	@echo 'Remove dot files in your home directory...'

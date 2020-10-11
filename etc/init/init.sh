@@ -27,7 +27,6 @@ else
   git clone https://github.com/rbenv/rbenv.git ~/.rbenv
   git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
 
-  rbenv global system
   rbenv rehash
   which ruby
   ruby -v
@@ -44,7 +43,6 @@ if [[ -d ~/.pyenv ]]; then
   echo 'Python already installed.'
 else
   git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-  pyenv global system
   pyenv rehash
 fi
 

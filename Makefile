@@ -26,12 +26,12 @@ update: ## Fetch changes for this repo
 	git submodule init
 	git submodule update
 	git submodule foreach git pull origin master
-
+	brew update
 
 install: update deploy init ## Run make update, deploy, init
 	@exec $$SHELL
 
-upgrade: update
+upgrade: update ## Upgrade modules
 	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/upgrade/upgrade.sh
 
 clean: ## Remove the dot files and this repo

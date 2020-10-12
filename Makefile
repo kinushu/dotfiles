@@ -20,7 +20,6 @@ init: ## Setup environment settings
 
 test: ## Test dotfiles and init scripts
 	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/test/test.sh
-	@echo "test is inactive temporarily"
 
 update: ## Fetch changes for this repo
 	git pull origin master

@@ -46,6 +46,8 @@ else
   pyenv rehash
 fi
 
+# git
+git config --global pull.rebase false
 # git-secrets
 if [[ -f ~/.git-templates/git-secrets/hooks/commit-msg ]]; then
   echo 'git-secrets already installed.'

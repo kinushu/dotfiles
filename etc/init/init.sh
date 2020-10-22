@@ -48,6 +48,7 @@ fi
 
 # git
 git config --global pull.rebase false
+git config --global core.excludesfile ~/.gitignore_global
 # git-secrets
 if [[ -f ~/.git-templates/git-secrets/hooks/commit-msg ]]; then
   echo 'git-secrets already installed.'

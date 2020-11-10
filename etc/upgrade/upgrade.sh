@@ -18,3 +18,4 @@ git pull
 omz update
 
 brew upgrade
+go get -u all

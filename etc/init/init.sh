@@ -81,15 +81,11 @@ brew install mas
 
 brew cask install google-cloud-sdk
 
-## ghq
-go get github.com/motemen/ghq
 # go get github.com/sonots/lltsv
 
 ## Go lib
 ghq get https://github.com/rupa/z
 
-pip install yq
-
-brew install curl peco fzf
+brew install curl peco fzf yq jq ghq
 
 echo 'fin.'

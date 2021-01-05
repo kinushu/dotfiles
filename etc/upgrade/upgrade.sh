@@ -15,7 +15,10 @@ git pull
 cd ~/.pyenv
 git pull
 
+cd ~/
+set +eu
 omz update
+set -eu
 
 brew upgrade
-go get -u all
+# go get -u all

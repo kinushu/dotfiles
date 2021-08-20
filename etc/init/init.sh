@@ -86,6 +86,8 @@ brew cask install google-cloud-sdk
 ## Go lib
 ghq get https://github.com/rupa/z
 
-brew install curl peco fzf yq jq ghq
+brew install curl
+brew install peco fzf jump
+brew install yq jq ghq
 
 echo 'fin.'

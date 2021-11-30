@@ -9,6 +9,9 @@ set -eu
 echo 'touch ~/.bashrc.local'
 touch ~/.bashrc.local
 
+# 共有フォルダで .DS_Store ファイルを作成しない
+defaults write com.apple.desktopservices DSDontWriteNetworkStores true
+
 # brew
 if [[ -f /usr/local/bin/brew ]]; then
     echo 'brew already installed.'

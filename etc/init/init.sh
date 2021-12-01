@@ -82,7 +82,7 @@ brew install vim less lesspipe
 brew install trash tree
 brew install mas
 
-brew cask install google-cloud-sdk
+brew install google-cloud-sdk
 
 # go get github.com/sonots/lltsv
 

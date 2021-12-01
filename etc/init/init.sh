@@ -93,8 +93,4 @@ brew install curl
 brew install peco fzf jump
 brew install yq jq ghq
 
-## nerd font
-brew tap homebrew/cask-fonts
-brew install --cask font-noto-nerd-font font-ubuntu-mono-nerd-font font-sauce-code-pro-nerd-font
-
 echo 'fin.'

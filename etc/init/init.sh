@@ -13,7 +13,7 @@ touch ~/.bashrc.local
 defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 
 # brew
-if [[ -f /usr/local/bin/brew ]]; then
+if [[ -f /opt/homebrew/bin/brew ]]; then
     echo 'brew already installed.'
 else
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"

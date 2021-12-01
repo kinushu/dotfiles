@@ -19,6 +19,7 @@ export PATH=${PYTHONUSERBASE}/bin:$PATH
 export GOPATH=$HOME/go
 export PATH=$GOPATH/bin:$PATH
 
+# home bin
 export PATH=$HOME/bin:$PATH
 
 export MANPATH=/opt/local/man:$MANPATH
@@ -30,7 +31,7 @@ fi
 
 export GHQ_ROOT=$HOME/ghq
 
-alias brew="PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin brew"
+alias brew="PATH=/opt/homebrew/bin/:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin brew"
 
 if [[ -f ~/.bashrc ]]; then
     source ~/.bashrc

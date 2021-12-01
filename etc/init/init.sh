@@ -94,3 +94,7 @@ brew install peco fzf jump
 brew install yq jq ghq
 
 echo 'fin.'
+
+# git config --global user.name "Name"
+# git config --global user.email "EMail"
+# git config -l

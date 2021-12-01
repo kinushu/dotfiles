@@ -93,6 +93,9 @@ brew install curl
 brew install peco fzf jump
 brew install yq jq ghq
 
+brew install mountain-duck
+mkdir -p ~/duck/Volumes
+
 echo 'fin.'
 
 # git config --global user.name "Name"

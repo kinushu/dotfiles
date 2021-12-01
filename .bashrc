@@ -17,5 +17,5 @@ if [[ $(command -v exa) ]]; then
   alias ee='exa -aal --icons'
 fi
 
-eval "$(jump shell)"
+# eval "$(jump shell)"
 

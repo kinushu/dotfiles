@@ -7,7 +7,7 @@ export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin
 export PATH="/usr/local/opt/openssl/bin:$PATH"
 
 # brew
-export PATH="/opt/homebrew/sbin:$PATH"
+export PATH="/opt/homebrew/sbin:/opt/homebrew/bin/:$PATH"
 
 # Ruby
 export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH

@@ -19,6 +19,13 @@ else
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
 fi
 
+# /usr/local/ 以下は ユーザー権限書込みとしておく
+# これがないと Rubymine などのコマンドラインツールが入れられない
+sudo mkdir -p /usr/local/bin/
+sudo chown $(whoami):admin /usr/local/bin/
+sudo mkdir -p /usr/local/lib/
+sudo chown $(whoami):admin /usr/local/lib/
+
 # brew using
 brew install git tig gibo zlib
 

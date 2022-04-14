@@ -48,12 +48,15 @@ fi
 brew install go
 
 ## Python
-brew install python
 if [[ -d ~/.pyenv ]]; then
   echo 'Python already installed.'
 else
   git clone https://github.com/pyenv/pyenv.git ~/.pyenv
   pyenv rehash
+
+  # wanted latest install
+  pyenv install 3.10.4
+  pyenv global 3.10.4
 fi
 
 # git

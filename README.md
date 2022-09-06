@@ -16,3 +16,9 @@ brew bundle --file ./Brewfile
 
 ~/.bashrc.local
 に記述。
+
+## 設定吸い上げ
+
+```bash
+brew bundle dump
+```

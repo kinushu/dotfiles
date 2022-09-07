@@ -45,6 +45,9 @@ else
 fi
 
 ## Go
+echo 'install go.'
+### 検証
+brew search go
 brew install go
 
 ## Python

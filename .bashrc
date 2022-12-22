@@ -9,6 +9,8 @@ alias cpu='top -o cpu'
 alias rm='rm -i'
 alias mv='mv -i'
 
+alias ssh='ssh -C'
+
 if [[ $(command -v exa) ]]; then
   alias e='exa --icons'
   alias ea='exa -a --icons'

@@ -34,7 +34,7 @@ fi
 
 export GHQ_ROOT=$HOME/ghq
 
-alias brew="PATH=/opt/homebrew/bin/:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin brew"
+alias brew="PATH=/opt/homebrew/bin/:/opt/homebrew/sbin/:/usr/local/bin:/usr/local/sbin:/usr/bin:/bin:/usr/sbin:/sbin brew"
 
 if [[ -f ~/.bashrc ]]; then
     source ~/.bashrc

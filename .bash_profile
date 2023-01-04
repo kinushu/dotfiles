@@ -46,4 +46,3 @@ fi
 
 # echo ".bash_profile end"
 
-source ~/.docker/init-bash.sh || true # Added by Docker Desktop

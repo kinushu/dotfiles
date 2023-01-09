@@ -46,3 +46,5 @@ fi
 
 # echo ".bash_profile end"
 
+
+. /opt/homebrew/opt/asdf/libexec/asdf.sh

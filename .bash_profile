@@ -44,7 +44,7 @@ if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
+BREW_PREFIX=`brew --prefix`
+. ${BREW_PREFIX}/opt/asdf/libexec/asdf.sh
+
 # echo ".bash_profile end"
-
-
-. /opt/homebrew/opt/asdf/libexec/asdf.sh

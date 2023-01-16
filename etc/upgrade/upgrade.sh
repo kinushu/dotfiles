@@ -22,3 +22,5 @@ set -eu
 
 brew upgrade
 # go get -u all
+
+echo "please turn on 'brew bundle'"

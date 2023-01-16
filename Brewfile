@@ -8,11 +8,13 @@ tap "homebrew/cask-versions"
 tap "homebrew/core"
 tap "nektos/tap"
 tap "sanemat/font"
+tap "teamookla/speedtest"
 tap "yt-dlp/taps"
 brew "glib"
 brew "python@3.9"
 brew "atk"
 brew "awscli"
+brew "asdf"
 brew "zstd"
 brew "bzt"
 brew "cmake"
@@ -25,6 +27,7 @@ brew "harfbuzz"
 brew "gobject-introspection"
 brew "ffmpeg"
 brew "pango"
+brew "ffmpeg"
 brew "fontforge"
 brew "fzf"
 brew "gdk-pixbuf"
@@ -32,6 +35,7 @@ brew "gh"
 brew "ghq"
 brew "gibo"
 brew "git"
+brew "git-lfs"
 brew "git-secrets"
 brew "go"
 brew "librsvg"
@@ -39,7 +43,6 @@ brew "graphviz"
 brew "gsettings-desktop-schemas"
 brew "gtk+"
 brew "gtk+3"
-brew "handbrake", link: false
 brew "htop"
 brew "hub"
 brew "imagemagick"
@@ -62,7 +65,7 @@ brew "qemu"
 brew "lima"
 brew "mas"
 brew "zlib"
-brew "mysql"
+brew "mariadb"
 brew "nkf"
 brew "node"
 brew "openjdk"
@@ -74,6 +77,7 @@ brew "qt"
 brew "rename"
 brew "ruby"
 brew "sox"
+brew "starship"
 brew "testssl"
 brew "tig"
 brew "tmux"
@@ -88,24 +92,20 @@ brew "yq"
 brew "zsh"
 brew "delphinus/sfmono-square/sfmono-square"
 brew "heroku/brew/heroku"
+brew "teamookla/speedtest/speedtest"
 brew "yt-dlp/taps/yt-dlp"
-cask "ableton-live-suite"
+cask "1password-cli"
 cask "alfred"
-cask "arctype"
 cask "authy"
 cask "aws-vault"
 cask "bdash"
 cask "blackhole-16ch"
 cask "choosy"
 cask "chromedriver"
-cask "clamxav"
-cask "clipy"
 cask "dbeaver-community"
-cask "devtoys"
 cask "disk-inventory-x"
 cask "docker"
 cask "drawio"
-cask "dropbox"
 cask "evernote"
 cask "firefox"
 cask "font-sauce-code-pro-nerd-font"
@@ -119,7 +119,6 @@ cask "handbrakebatch"
 cask "imageoptim"
 cask "iterm2"
 cask "jetbrains-toolbox"
-cask "libreoffice"
 cask "mi"
 cask "microsoft-auto-update"
 cask "microsoft-edge"
@@ -129,43 +128,26 @@ cask "ngrok"
 cask "obs"
 cask "optimage"
 cask "owasp-zap"
-cask "skype"
-cask "sonic-pi"
-cask "soundsource"
-cask "sourcetree"
 cask "sublime-text"
 cask "switchhosts"
 cask "thunderbird"
-cask "typora"
 cask "utm"
 cask "vagrant"
 cask "visual-studio-code"
 cask "vlc"
 cask "xquartz"
-mas "1Password 7", id: 1333542190
 mas "Bandwidth+", id: 490461369
 mas "BetterSnapTool", id: 417375580
-mas "Day One", id: 1055511498
-mas "djay Pro AI", id: 450527929
-mas "Final Cut Pro", id: 424389933
-mas "FontPreview", id: 537580561
 mas "Geekbench 4", id: 1175706108
 mas "GoodNotes", id: 1444383602
 mas "iReal Pro", id: 409035833
 mas "Kindle", id: 405399194
-mas "LINE", id: 539883307
 mas "Mactracker", id: 430255202
-mas "Microsoft OneNote", id: 784801555
-mas "Microsoft Remote Desktop", id: 1295203466
-mas "MindNode", id: 1289197285
-mas "News Explorer", id: 1032670789
-mas "Parallels Client", id: 600925318
 mas "Sequel Ace", id: 1518036000
 mas "SiteSucker", id: 442168834
 mas "Slack", id: 803453959
 mas "Switch Plus", id: 434744386
 mas "Tailscale", id: 1475387142
 mas "The Unarchiver", id: 425424353
-mas "Twitter", id: 1482454543
 mas "WinArchiver", id: 413215883
 mas "Xcode", id: 497799835

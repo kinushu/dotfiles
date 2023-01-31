@@ -4,3 +4,6 @@
 .generators
 .envrc
 
+# office temp file
+~$*.*
+

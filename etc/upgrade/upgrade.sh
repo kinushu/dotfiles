@@ -23,4 +23,6 @@ set -eu
 brew upgrade
 # go get -u all
 
+brew doctor
+
 echo "please turn on 'brew bundle'"

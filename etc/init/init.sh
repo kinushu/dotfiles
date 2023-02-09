@@ -44,8 +44,8 @@ else
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
 fi
 
-## Go
-brew install go
+## Go, etc..
+brew install asdf
 
 ## Python
 if [[ -d ~/.pyenv ]]; then

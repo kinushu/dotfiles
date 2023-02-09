@@ -22,10 +22,10 @@ test: ## Test dotfiles and init scripts
 	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/test/test.sh
 
 update: ## Fetch changes for this repo
-	git pull origin master
+	git pull origin main
 	git submodule init
 	git submodule update
-	git submodule foreach git pull origin master
+	git submodule foreach git pull origin main
 	brew update
 
 install: update deploy init ## Run make update, deploy, init

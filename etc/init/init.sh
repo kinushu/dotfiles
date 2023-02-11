@@ -48,11 +48,15 @@ fi
 brew install asdf
 asdf plugin add python
 asdf install python latest
+asdf global python latest
+
 asdf plugin add golang
 asdf install golang latest
+asdf global golang latest
+
 asdf plugin add nodejs
 asdf install nodejs latest
-
+asdf global nodejs latest
 # git
 git config --global pull.rebase false
 git config --global core.excludesfile ~/.gitignore_global

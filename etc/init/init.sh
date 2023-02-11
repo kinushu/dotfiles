@@ -46,18 +46,12 @@ fi
 
 ## Go, etc..
 brew install asdf
-
-## Python
-if [[ -d ~/.pyenv ]]; then
-  echo 'Python already installed.'
-else
-  git clone https://github.com/pyenv/pyenv.git ~/.pyenv
-  pyenv rehash
-
-  # wanted latest install
-  pyenv install 3.10.4
-  pyenv global 3.10.4
-fi
+asdf plugin add python
+asdf install python latest
+asdf plugin add golang
+asdf install golang latest
+asdf plugin add nodejs
+asdf install nodejs latest
 
 # git
 git config --global pull.rebase false

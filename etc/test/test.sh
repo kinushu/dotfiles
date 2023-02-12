@@ -18,7 +18,7 @@ which ruby
 
 python -V
 which python
-echo $PYENV_ROOT
+# echo $PYENV_ROOT
 
 go version
 which go

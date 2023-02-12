@@ -12,15 +12,15 @@ export PATH="/opt/homebrew/sbin:/opt/homebrew/bin/:$PATH"
 # Ruby
 export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
 
-# Python
-export PYENV_ROOT=${HOME}/.pyenv
-export PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:$PATH
-export PYTHONUSERBASE=${HOME}/.pip_local
-export PATH=${PYTHONUSERBASE}/bin:$PATH
-
-# Go
-export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$PATH
+# # Python
+# export PYENV_ROOT=${HOME}/.pyenv
+# export PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:$PATH
+# export PYTHONUSERBASE=${HOME}/.pip_local
+# export PATH=${PYTHONUSERBASE}/bin:$PATH
+#
+# # Go
+# export GOPATH=$HOME/go
+# export PATH=$GOPATH/bin:$PATH
 
 # home bin
 export PATH=$HOME/bin:$PATH
@@ -44,6 +44,7 @@ if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
+# asdf
 BREW_PREFIX=`brew --prefix`
 . ${BREW_PREFIX}/opt/asdf/libexec/asdf.sh
 

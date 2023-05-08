@@ -4,6 +4,9 @@
 export PATH=/usr/local/bin:/usr/local/sbin:$PATH
 export PATH=$PATH:/usr/bin:/bin:/usr/sbin:/sbin
 
+# for coreutils
+export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+
 export PATH="/usr/local/opt/openssl/bin:$PATH"
 
 # brew

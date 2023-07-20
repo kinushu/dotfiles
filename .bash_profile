@@ -20,10 +20,10 @@ export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
 # export PATH=${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:$PATH
 # export PYTHONUSERBASE=${HOME}/.pip_local
 # export PATH=${PYTHONUSERBASE}/bin:$PATH
-#
-# # Go
-# export GOPATH=$HOME/go
-# export PATH=$GOPATH/bin:$PATH
+
+# Go
+export GOPATH=$HOME/go
+export PATH=$GOPATH/bin:$PATH
 
 # home bin
 export PATH=$HOME/bin:$PATH

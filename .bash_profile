@@ -23,7 +23,8 @@ export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
 
 # Go
 export GOPATH=$HOME/go
-export PATH=$GOPATH/bin:$PATH
+export GOBIN=$GOPATH/bin
+export PATH=$GOBIN:$PATH
 
 # home bin
 export PATH=$HOME/bin:$PATH

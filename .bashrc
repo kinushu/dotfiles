@@ -11,10 +11,10 @@ alias mv='mv -i'
 
 alias ssh='ssh -C'
 
-if [[ $(command -v exa) ]]; then
-  alias e='exa --icons'
-  alias ea='exa -a --icons'
-  alias ee='exa -aal --icons'
+if [[ $(command -v eza) ]]; then
+  alias e='eza --icons'
+  alias ea='eza -a --icons'
+  alias ee='eza -aal --icons'
 fi
 
 # eval "$(jump shell)"

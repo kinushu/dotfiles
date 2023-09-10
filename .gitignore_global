@@ -3,6 +3,8 @@
 .idea
 .generators
 .envrc
+.ruby-version
+.tool-versions
 
 # office temp file
 ~$*.*

@@ -16,7 +16,7 @@ defaults write com.apple.desktopservices DSDontWriteNetworkStores true
 if [[ -f /opt/homebrew/bin/brew ]] || [[ -f /usr/local/bin/brew ]]; then
     echo 'brew already installed.'
 else
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
 # /usr/local/ 以下は ユーザー権限書込みとしておく

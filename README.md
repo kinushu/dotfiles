@@ -9,6 +9,7 @@ cd ~/dotfiles
 make deploy
 make init
 
+# Desktopソフトなど導入
 brew bundle --file ./Brewfile
 ```
 
@@ -16,6 +17,12 @@ brew bundle --file ./Brewfile
 
 ~/.bashrc.local
 に記述。
+
+## 日々の更新
+
+```bash
+make upgrade
+```
 
 ## 設定吸い上げ
 

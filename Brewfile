@@ -87,7 +87,6 @@ brew "vim"
 brew "watch"
 brew "wget"
 brew "yarn"
-brew "youtube-dl"
 brew "yq"
 brew "zsh"
 brew "delphinus/sfmono-square/sfmono-square"
@@ -140,9 +139,7 @@ cask "vlc"
 cask "xquartz"
 mas "Bandwidth+", id: 490461369
 mas "BetterSnapTool", id: 417375580
-mas "Geekbench 4", id: 1175706108
 mas "GoodNotes", id: 1444383602
-mas "iReal Pro", id: 409035833
 mas "Kindle", id: 405399194
 mas "Mactracker", id: 430255202
 mas "Sequel Ace", id: 1518036000

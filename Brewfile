@@ -9,7 +9,6 @@ tap "homebrew/core"
 tap "nektos/tap"
 tap "sanemat/font"
 tap "teamookla/speedtest"
-tap "yt-dlp/taps"
 brew "glib"
 brew "python@3.9"
 brew "atk"
@@ -92,7 +91,7 @@ brew "zsh"
 brew "delphinus/sfmono-square/sfmono-square"
 brew "heroku/brew/heroku"
 brew "teamookla/speedtest/speedtest"
-brew "yt-dlp/taps/yt-dlp"
+brew "yt-dlp"
 cask "1password-cli"
 cask "alfred"
 cask "authy"
@@ -148,5 +147,4 @@ mas "Slack", id: 803453959
 mas "Switch Plus", id: 434744386
 mas "Tailscale", id: 1475387142
 mas "The Unarchiver", id: 425424353
-mas "WinArchiver", id: 413215883
 mas "Xcode", id: 497799835

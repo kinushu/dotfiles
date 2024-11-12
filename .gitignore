@@ -45,7 +45,7 @@ Temporary Items
 
 .idea
 
-
+.memo.local.*
 
 Brewfile.lock.json
 tmp

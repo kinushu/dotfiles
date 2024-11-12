@@ -9,3 +9,6 @@
 # office temp file
 ~$*.*
 
+## memo
+.memo.local.*
+

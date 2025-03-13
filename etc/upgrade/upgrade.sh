@@ -19,19 +19,25 @@ git pull
 cd ~/
 set +eu
 omz update
+
 set -eu
 
 brew upgrade
 
+set +eu
+
 ## asdf
 asdf install python latest
-asdf global python latest
+### set global で 終了コード1になる？ため、一旦回避
+asdf set global python latest
 
 asdf install golang latest
-asdf global golang latest
+asdf set global golang latest
 
 asdf install nodejs latest
-asdf global nodejs latest
+asdf set global nodejs latest
+
+set -eu
 
 brew doctor
 

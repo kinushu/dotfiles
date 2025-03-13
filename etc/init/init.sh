@@ -44,19 +44,24 @@ else
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
 fi
 
+set +eu
+
 ## Go, etc..
 brew install asdf
 asdf plugin add python
 asdf install python latest
-asdf global python latest
+asdf set global python latest
 
 asdf plugin add golang
 asdf install golang latest
-asdf global golang latest
+asdf set global golang latest
 
 asdf plugin add nodejs
 asdf install nodejs latest
-asdf global nodejs latest
+asdf set global nodejs latest
+
+set -eu
+
 # git
 git config --global pull.rebase false
 git config --global core.excludesfile ~/.gitignore_global

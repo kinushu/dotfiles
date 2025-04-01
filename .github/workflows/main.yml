@@ -9,9 +9,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Test
+      - name: Init
         run: |
           make deploy
           make init
+      - name: Update
+        run: |
           make update
+      - name: Test
+        run: |
           make test

@@ -24,20 +24,15 @@ set -eu
 
 brew upgrade
 
-set +eu
-
 ## asdf
 asdf install python latest
-### set global で 終了コード1になる？ため、一旦回避
-asdf set global python latest
+asdf set -u python latest
 
 asdf install golang latest
-asdf set global golang latest
+asdf set -u golang latest
 
 asdf install nodejs latest
-asdf set global nodejs latest
-
-set -eu
+asdf set -u nodejs latest
 
 brew doctor
 

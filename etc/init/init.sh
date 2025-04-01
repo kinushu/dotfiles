@@ -18,6 +18,7 @@ if [[ -f /opt/homebrew/bin/brew ]] || [[ -f /usr/local/bin/brew ]]; then
 else
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
+brew update
 
 # /usr/local/ 以下は ユーザー権限書込みとしておく
 # これがないと Rubymine などのコマンドラインツールが入れられない
@@ -44,23 +45,35 @@ else
   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
 fi
 
-set +eu
+# asdf
+## asdf 16.0 以上対応
+brew install asdf
+source ~/.bash_profile
+# BREW_PREFIX=`brew --prefix`
+# . ${BREW_PREFIX}/opt/asdf/libexec/asdf.sh
+which asdf
+asdf version
 
 ## Go, etc..
-brew install asdf
 asdf plugin add python
 asdf install python latest
-asdf set global python latest
+asdf set -u python latest
 
 asdf plugin add golang
 asdf install golang latest
-asdf set global golang latest
+asdf set -u golang latest
 
 asdf plugin add nodejs
 asdf install nodejs latest
-asdf set global nodejs latest
+asdf set -u nodejs latest
 
-set -eu
+## check
+ruby -v
+which ruby
+python -V
+which python
+go version
+which go
 
 # git
 git config --global pull.rebase false

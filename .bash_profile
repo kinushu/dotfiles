@@ -51,5 +51,6 @@ fi
 # asdf
 BREW_PREFIX=`brew --prefix`
 . ${BREW_PREFIX}/opt/asdf/libexec/asdf.sh
+export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
 
 # echo ".bash_profile end"

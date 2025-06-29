@@ -37,6 +37,7 @@ mise install
 # asdf install nodejs latest
 # asdf set -u nodejs latest
 
+set +eu
 brew doctor
 
 echo "please turn on 'brew bundle'"

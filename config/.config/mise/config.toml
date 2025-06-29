@@ -1,0 +1,18 @@
+[tools]
+# Version management for development tools
+go = "latest"
+python = "latest"
+node = "lts"
+ruby = "latest"
+"npm:@anthropic-ai/claude-code" = "latest"
+"npm:@google/gemini-cli" = "latest"
+
+[env]
+# Environment variables
+EDITOR = "vim"
+
+[settings]
+# mise settings
+experimental = false
+verbose = false
+idiomatic_version_file_enable_tools = ["ruby"]

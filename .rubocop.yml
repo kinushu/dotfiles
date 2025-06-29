@@ -1,0 +1,60 @@
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.0
+  Exclude:
+    - 'vendor/**/*'
+    - 'tmp/**/*'
+    - 'node_modules/**/*'
+
+# Style/Documentation:
+#   Enabled: false
+
+# Style/StringLiterals:
+#   Enabled: true
+#   EnforcedStyle: single_quotes
+
+# Style/FrozenStringLiteralComment:
+#   Enabled: true
+#   EnforcedStyle: always
+
+# This cop supports unsafe autocorrection (--autocorrect-all).
+Style/EnvHome:
+  Exclude:
+    - 'cookbooks/**/*.rb'
+    - 'roles/**/*.rb'
+
+# This cop supports safe autocorrection (--autocorrect).
+# Configuration parameters: AllowedVars, DefaultToNil.
+Style/FetchEnvVar:
+  Exclude:
+    - 'cookbooks/**/*.rb'
+    - 'roles/**/*.rb'
+
+# Metrics/LineLength:
+#   Max: 120
+
+# Metrics/MethodLength:
+#   Max: 20
+
+# Metrics/AbcSize:
+#   Max: 20
+
+Metrics/BlockLength:
+  Exclude:
+    - 'spec/**/*'
+    - 'lib/tasks/**/*.rake'
+
+# Style/BlockDelimiters:
+#   EnforcedStyle: semantic
+
+# Layout/IndentationConsistency:
+#   EnforcedStyle: normal
+
+# Layout/IndentationWidth:
+#   Width: 2
+
+# Layout/FirstHashElementIndentation:
+#   EnforcedStyle: consistent
+
+# Layout/FirstArrayElementIndentation:
+#   EnforcedStyle: consistent

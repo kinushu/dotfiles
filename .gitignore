@@ -46,7 +46,12 @@ Temporary Items
 .idea
 
 .memo.local.*
+*.local.*
 
 Brewfile.lock.json
 tmp/*
 !tmp/.keep
+log/*
+!log/.keep
+
+bin/mitamae

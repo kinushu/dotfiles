@@ -12,8 +12,7 @@ export PATH="/usr/local/opt/openssl/bin:$PATH"
 # brew
 export PATH="/opt/homebrew/sbin:/opt/homebrew/bin/:$PATH"
 
-# Ruby
-export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
+# Ruby (now managed by mise)
 
 # # Python
 # export PYENV_ROOT=${HOME}/.pyenv
@@ -21,10 +20,7 @@ export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
 # export PYTHONUSERBASE=${HOME}/.pip_local
 # export PATH=${PYTHONUSERBASE}/bin:$PATH
 
-# Go
-export GOPATH=$HOME/go
-export GOBIN=$GOPATH/bin
-export PATH=$GOBIN:$PATH
+# Go (now managed by mise)
 
 # home bin
 export PATH=$HOME/bin:$PATH
@@ -48,9 +44,9 @@ if [[ -f ~/.bashrc.local ]]; then
     source ~/.bashrc.local
 fi
 
-# asdf
-BREW_PREFIX=`brew --prefix`
-. ${BREW_PREFIX}/opt/asdf/libexec/asdf.sh
-export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+# mise (replaces asdf)
+if command -v mise >/dev/null 2>&1; then
+  eval "$(mise activate bash)"
+fi
 
 # echo ".bash_profile end"

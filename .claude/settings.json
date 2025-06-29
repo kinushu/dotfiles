@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(bundle install)",
+      "Bash(ls:*)",
+      "Bash(./bin/format:*)",
+      "Bash(./bin/setup)",
+      "Bash(gemini:*)"
+    ],
+    "deny": []
+  }
+}

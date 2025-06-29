@@ -15,10 +15,9 @@ deploy: ## Create symlink to home directory
 	@echo ''
 	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/deploy.sh
 
-init: ## Setup environment settings
+init: deploy ## Setup environment settings
 	@echo '==> Setup environment settings.'
 	@echo ''
-	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/deploy.sh
 	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/init/init.sh
 
 test: ## Test dotfiles and init scripts

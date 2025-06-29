@@ -16,6 +16,9 @@ jobs:
       - name: Update
         run: |
           make update
+      - name: Upgrade
+        run: |
+          make upgrade
       - name: Test
         run: |
           make test

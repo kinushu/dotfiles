@@ -2,6 +2,10 @@
 
 set +eu
 
+script_dir=$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)
+cd $script_dir
+
+# シンボリックリンクがすでに配置されていることを前提に設定ファイルを読み込む
 source $HOME/.bash_profile
 
 set -eu
@@ -30,42 +34,53 @@ sudo chown $(whoami):admin /usr/local/lib/
 # brew using
 brew install git tig gibo zlib
 
+# mise
+brew install mise
+
+# mitamae で darwin 用のレシピ全実行
+## プロジェクトのルートディレクトリに移動
+cd ../../
+bin/mitamae local ./roles/darwin.rb
+cd -
+## 上記のmitamaeの変更を反映
+source $HOME/.bash_profile
+
 # Ruby
-if [[ -d ~/.rbenv ]]; then
-  echo 'Ruby already installed.'
-else
-  brew install ruby
-  git clone https://github.com/rbenv/rbenv.git ~/.rbenv
-  git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
+# if [[ -d ~/.rbenv ]]; then
+#   echo 'Ruby already installed.'
+# else
+#   brew install ruby
+#   git clone https://github.com/rbenv/rbenv.git ~/.rbenv
+#   git clone https://github.com/sstephenson/ruby-build.git ~/.rbenv/plugins/ruby-build
 
-  rbenv rehash
-  which ruby
-  ruby -v
+#   rbenv rehash
+#   which ruby
+#   ruby -v
 
-  curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
-fi
+#   curl -fsSL https://github.com/rbenv/rbenv-installer/raw/master/bin/rbenv-doctor | bash
+# fi
 
-# asdf
-## asdf 16.0 以上対応
-brew install asdf
-source ~/.bash_profile
-# BREW_PREFIX=`brew --prefix`
-# . ${BREW_PREFIX}/opt/asdf/libexec/asdf.sh
-which asdf
-asdf version
+# # asdf
+# ## asdf 16.0 以上対応
+# brew install asdf
+# source ~/.bash_profile
+# # BREW_PREFIX=`brew --prefix`
+# # . ${BREW_PREFIX}/opt/asdf/libexec/asdf.sh
+# which asdf
+# asdf version
 
-## Go, etc..
-asdf plugin add python
-asdf install python latest
-asdf set -u python latest
+# ## Go, etc..
+# asdf plugin add python
+# asdf install python latest
+# asdf set -u python latest
 
-asdf plugin add golang
-asdf install golang latest
-asdf set -u golang latest
+# asdf plugin add golang
+# asdf install golang latest
+# asdf set -u golang latest
 
-asdf plugin add nodejs
-asdf install nodejs latest
-asdf set -u nodejs latest
+# asdf plugin add nodejs
+# asdf install nodejs latest
+# asdf set -u nodejs latest
 
 ## check
 ruby -v

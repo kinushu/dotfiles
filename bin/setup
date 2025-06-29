@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+echo "Setting up development environment..."
+
+# Install bundler if not present
+if ! command -v bundle &> /dev/null; then
+  echo "Installing bundler..."
+  gem install bundler
+fi
+
+# Install Ruby dependencies
+if [ -f Gemfile ]; then
+  echo "Installing Ruby dependencies..."
+  bundle install
+fi
+
+echo "Setup complete!"

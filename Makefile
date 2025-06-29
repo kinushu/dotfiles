@@ -1,21 +1,24 @@
 DOTPATH    := $(realpath $(dir $(lastword $(MAKEFILE_LIST))))
-CANDIDATES := $(wildcard .??*) bin
+CONFIG_FILES := $(shell find $(DOTPATH)/config -type f)
 EXCLUSIONS := .DS_Store .git .gitmodules .travis.yml .gitignore .idea
-DOTFILES   := $(filter-out $(EXCLUSIONS), $(CANDIDATES))
 
 .DEFAULT_GOAL := help
 
 all:
 
-list: ## Show dot files in this repo
-	@$(foreach val, $(DOTFILES), /bin/ls -dF $(val);)
+list: ## Show config files in this repo
+	@echo 'Config Files:'
+	@find $(DOTPATH)/config -type f | sort
 
 deploy: ## Create symlink to home directory
 	@echo '==> Start to deploy dotfiles to home directory.'
 	@echo ''
-	@$(foreach val, $(DOTFILES), ln -sfnv $(abspath $(val)) $(HOME)/$(val);)
+	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/deploy.sh
 
 init: ## Setup environment settings
+	@echo '==> Setup environment settings.'
+	@echo ''
+	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/deploy.sh
 	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/init/init.sh
 
 test: ## Test dotfiles and init scripts
@@ -33,11 +36,6 @@ install: update deploy init ## Run make update, deploy, init
 
 upgrade: update ## Upgrade modules
 	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/upgrade/upgrade.sh
-
-clean: ## Remove the dot files and this repo
-	@echo 'Remove dot files in your home directory...'
-	@-$(foreach val, $(DOTFILES), rm -vrf $(HOME)/$(val);)
-	-rm -rf $(DOTPATH)
 
 help: ## Self-documented Makefile
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \

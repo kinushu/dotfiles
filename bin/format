@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+if ! command -v bundle &> /dev/null; then
+  echo "Error: bundle command not found. Please run 'bin/setup' first."
+  exit 1
+fi
+
+if [ ! -f Gemfile.lock ]; then
+  echo "Error: Gemfile.lock not found. Please run 'bin/setup' first."
+  exit 1
+fi
+
+echo "Running RuboCop..."
+bundle exec rubocop -A

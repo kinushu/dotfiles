@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(mkdir:*)",
+      "Bash(bundle install)",
+      "Bash(ls:*)",
+      "Bash(afplay:*)",
+      "Bash(gemini:*)"
+    ],
+    "deny": [
+      "Bash(sudo:*)",
+      "Bash(rm:*)",
+      "Bash(git push:*)",
+      "Read(.env.*)",
+      "Read(id_*)",
+      "Write(.env.*)",
+      "Write(id_*)"
+    ]
+  }
+}

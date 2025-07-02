@@ -17,5 +17,18 @@
       "Write(.env.*)",
       "Write(id_*)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff"
+          }
+        ]
+      }
+    ]
   }
-}
+}\"

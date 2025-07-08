@@ -2,9 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Bash(mkdir:*)",
-      "Bash(bundle install)",
       "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(diff:*)",
+      "Bash(mkdir:*)",
+      "Bash(cat:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(docker compose:*)",
+      "Bash(docker compose exec:*)",
+      "Bash(docker compose logs:*)",
+      "Bash(bundle install)",
       "Bash(afplay:*)",
       "Bash(gemini:*)"
     ],
@@ -17,5 +25,18 @@
       "Write(.env.*)",
       "Write(id_*)"
     ]
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff"
+          }
+        ]
+      }
+    ]
   }
-}
+}\"

@@ -24,8 +24,8 @@ set -eu
 
 brew upgrade
 
-## mise で latest をinstallする。
-mise install
+## mise で latest を更新する。
+mise upgrade
 
 ## asdf
 # asdf install python latest

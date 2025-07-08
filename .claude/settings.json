@@ -7,7 +7,9 @@
       "Bash(ls:*)",
       "Bash(./bin/format:*)",
       "Bash(./bin/setup)",
-      "Bash(gemini:*)"
+      "Bash(gemini:*)",
+      "Bash(cat:*)",
+      "Bash(afplay:*)"
     ],
     "deny": []
   }

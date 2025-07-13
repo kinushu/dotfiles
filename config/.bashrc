@@ -17,5 +17,11 @@ if [[ $(command -v eza) ]]; then
   alias ee='eza -aal --icons'
 fi
 
+if [[ $(command -v op) ]]; then
+  # 1Password cli 使用できる場合は以下をprefixとして実行する。
+  alias op_env='op run --env-file=".env_op" --no-masking --'
+  alias bundle_op='op_env bundle'
+fi
+
 # eval "$(jump shell)"
 

@@ -1,0 +1,84 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'English'
+require 'fileutils'
+require 'date'
+require 'tmpdir'
+
+# This script creates a sandbox project directory with a specified name
+class SandboxProjectCreator
+  def self.call
+    new.call
+  end
+
+  def call
+    # プロジェクト名を引数から取得
+    if ARGV.empty?
+      puts '使い方: create_sandbox_project <プロジェクト名>'
+      exit 1
+    end
+
+    project_name = ARGV[0]
+    current_year = Date.today.year
+    current_month = Date.today.strftime('%Y-%m-%d')
+
+    # ディレクトリパスを構築
+    sandbox_path = File.expand_path("~/develop/sandbox/#{current_year}/#{current_month}_#{project_name}")
+
+    # ディレクトリを作成
+    begin
+      # sandbox_pathが存在する場合は作成済みの旨表表示し、エラー終了。
+      if File.exist?(sandbox_path)
+        puts "プロジェクトディレクトリは既に存在します: #{sandbox_path}"
+        exit 1
+      end
+
+      FileUtils.mkdir_p(sandbox_path)
+      puts "プロジェクトを作成しました: #{sandbox_path}"
+
+      # 作成したディレクトリに移動して
+      Dir.chdir(sandbox_path) do
+        # 新しくgitリポジトリを初期化
+
+        system("git init && touch README.md && git add . && git commit -m 'init'")
+
+        # git@github.com:kinushu/sandbox_boilerplate.git の最新の内容を展開し、改めて git 履歴をクリアしてから、 git init して開発開始状態とする。
+
+        git_clone_url = 'git@github.com:kinushu/sandbox_boilerplate.git'
+
+        # 一時ディレクトリを使用してクローン
+        Dir.mktmpdir('boilerplate') do |temp_dir|
+          system("git clone --depth 1 #{git_clone_url} #{temp_dir}")
+          if $CHILD_STATUS.exitstatus != 0
+            puts "Gitリポジトリのクローンに失敗しました: #{git_clone_url}"
+            exit 1
+          end
+
+          # .gitディレクトリを削除してからファイルをコピー
+          FileUtils.rm_rf("#{temp_dir}/.git")
+          FileUtils.cp_r("#{temp_dir}/.", '.')
+        end
+
+        system('git add .')
+        system("git commit -m 'boilerplate settings'")
+      end
+
+      puts 'Gitリポジトリを初期化しました'
+    rescue StandardError => e
+      puts "エラー: #{e.message}"
+      exit 1
+    end
+
+    self
+  end
+end
+
+# スクリプトの実行
+if __FILE__ == $PROGRAM_NAME
+  SandboxProjectCreator.call
+else
+  puts 'このスクリプトは直接実行する必要があります。'
+  puts '例: ruby create_sandbox_project.rb <プロジェクト名>'
+  exit 1
+end

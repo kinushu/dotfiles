@@ -21,8 +21,10 @@
       "Bash(rm:*)",
       "Bash(git push:*)",
       "Read(.env.*)",
+      "Read(.env_*)",
       "Read(id_*)",
       "Write(.env.*)",
+      "Write(.env_*)",
       "Write(id_*)"
     ]
   },

@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'fileutils'
+require 'date'
+
+# プロジェクト名を引数から取得
+if ARGV.empty?
+  puts '使い方: create_sandbox_project <プロジェクト名>'
+  exit 1
+end
+
+project_name = ARGV[0]
+current_year = Date.today.year
+current_month = Date.today.strftime('%Y-%m-%d')
+
+# ディレクトリパスを構築
+sandbox_path = File.expand_path("~/develop/sandbox/#{current_year}/#{current_month}_#{project_name}")
+
+# ディレクトリを作成
+begin
+  FileUtils.mkdir_p(sandbox_path)
+  puts "プロジェクトを作成しました: #{sandbox_path}"
+
+  # 作成したディレクトリに移動してgitを初期化
+  Dir.chdir(sandbox_path) do
+    system('git init')
+    system('touch README.md')
+    system('git add .')
+    system("git commit -m 'init'")
+  end
+
+  puts 'Gitリポジトリを初期化しました'
+rescue StandardError => e
+  puts "エラー: #{e.message}"
+  exit 1
+end

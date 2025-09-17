@@ -10,13 +10,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
       - name: Init
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           make deploy
           make init
       - name: Update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           make update
       - name: Upgrade
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           make upgrade
       - name: Test

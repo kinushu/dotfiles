@@ -9,10 +9,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Ensure Homebrew cache directory
+      - name: Ensure cache directories
         run: |
           mkdir -p ~/Library/Caches/Homebrew
           mkdir -p ~/Library/Logs/Homebrew
+          mkdir -p ~/.local/share/mise
+          mkdir -p ~/.cache/mise
       - name: Cache Homebrew downloads
         uses: actions/cache@v4
         with:
@@ -22,6 +24,15 @@ jobs:
           key: brew-cache-${{ runner.os }}-${{ hashFiles('Brewfile') }}
           restore-keys: |
             brew-cache-${{ runner.os }}-
+      - name: Cache mise downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/mise
+            ~/.cache/mise
+          key: mise-cache-${{ runner.os }}-${{ hashFiles('config/.config/mise/config.toml') }}
+          restore-keys: |
+            mise-cache-${{ runner.os }}-
       - name: Init
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}

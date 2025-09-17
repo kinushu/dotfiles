@@ -15,6 +15,10 @@ jobs:
           mkdir -p ~/Library/Logs/Homebrew
           mkdir -p ~/.local/share/mise
           mkdir -p ~/.cache/mise
+      - name: Prepare brew configuration
+        run: |
+          brew untap homebrew/core
+          brew untap homebrew/cask
       - name: Cache Homebrew downloads
         uses: actions/cache@v4
         with:

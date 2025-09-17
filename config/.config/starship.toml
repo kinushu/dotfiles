@@ -1,0 +1,2 @@
+# Allow slower node detection to avoid Starship timeout warnings
+command_timeout = 2000

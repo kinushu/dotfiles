@@ -10,10 +10,12 @@ config_path = File.join(dotfiles_path, 'config')
 config_files = [
   '.bash_profile',
   '.bashrc',
+  '.codex/AGENTS.md',
   '.claude/CLAUDE.md',
   '.claude/settings.json',
   '.claude/commands/gemini-search.md',
   '.config/mise/config.toml',
+  '.config/starship.toml',
   '.gemrc',
   '.gitignore_global',
   '.vimrc',

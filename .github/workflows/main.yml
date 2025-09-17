@@ -9,14 +9,48 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - name: Ensure cache directories
+        run: |
+          mkdir -p ~/Library/Caches/Homebrew
+          mkdir -p ~/Library/Logs/Homebrew
+          mkdir -p ~/.local/share/mise
+          mkdir -p ~/.cache/mise
+      - name: Prepare brew configuration
+        run: |
+          brew untap homebrew/core
+          brew untap homebrew/cask
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            ~/Library/Logs/Homebrew
+          key: brew-cache-${{ runner.os }}-${{ hashFiles('Brewfile') }}
+          restore-keys: |
+            brew-cache-${{ runner.os }}-
+      - name: Cache mise downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.local/share/mise
+            ~/.cache/mise
+          key: mise-cache-${{ runner.os }}-${{ hashFiles('config/.config/mise/config.toml') }}
+          restore-keys: |
+            mise-cache-${{ runner.os }}-
       - name: Init
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           make deploy
           make init
       - name: Update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           make update
       - name: Upgrade
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           make upgrade
       - name: Test

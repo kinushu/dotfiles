@@ -9,6 +9,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - name: Ensure Homebrew cache directory
+        run: |
+          mkdir -p ~/Library/Caches/Homebrew
+          mkdir -p ~/Library/Logs/Homebrew
+      - name: Cache Homebrew downloads
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/Library/Caches/Homebrew
+            ~/Library/Logs/Homebrew
+          key: brew-cache-${{ runner.os }}-${{ hashFiles('Brewfile') }}
+          restore-keys: |
+            brew-cache-${{ runner.os }}-
       - name: Init
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PAT }}

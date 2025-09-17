@@ -15,6 +15,7 @@ config_files = [
   '.claude/settings.json',
   '.claude/commands/gemini-search.md',
   '.config/mise/config.toml',
+  '.config/starship.toml',
   '.gemrc',
   '.gitignore_global',
   '.vimrc',

@@ -36,25 +36,21 @@ When modifying configurations, use `make test` to verify the environment is work
 ## Architecture
 
 ### Directory Structure
-- `config/`: All configuration files organized by tool/purpose
-  - `shell/`: Bash and Zsh configurations
-  - `git/`: Git global configuration
-  - `vim/`: Vim configuration
-  - `editor/`: Other editor configurations
-  - `claude/`: Claude Code configuration (symlinked to ~/.claude/)
-- `bin/`: User scripts (symlinked to ~/bin)
-- `cookbooks/`: Mitamae recipes for different components
-  - `dotfiles/`: Symlink management
-  - `mise/`: Version management for multiple languages via mise
-- `roles/`: Mitamae role definitions
-  - `base.rb`: Cross-platform base configuration
-  - `darwin.rb`: macOS-specific configuration
+- `config/`: Template dotfiles tracked with their leading dots so they mirror the home directory layout (key files include `.bash_profile`, `.bashrc`, `.zshrc`, `.vimrc`, `.gitignore_global`, `.gemrc`)
+  - `.claude/`: Claude Code settings and command definitions (symlinked to `~/.claude/`)
+  - `.codex/`: Agent-facing guidance specific to this repository
+  - `.config/`: Application configs such as `mise/config.toml` (language and runtime versions) and `starship.toml` (prompt configuration)
+- `bin/`: User utility scripts (intended to be linked to `~/bin`)
+- `cookbooks/`: Mitamae recipes
+  - `dotfiles/`: Symlink management for tracked dotfiles
+  - `mise/`: Tool installation and version management via mise
+- `roles/`: Mitamae role definitions (`base.rb` for shared settings, `darwin.rb` for macOS specifics)
 - `etc/`: Legacy setup and maintenance scripts
   - `init/init.sh`: Initial setup logic
   - `test/test.sh`: Environment verification
-  - `upgrade/upgrade.sh`: Tool upgrade logic
-- `Brewfile`: Homebrew dependencies (90+ formulae, 50+ casks)
-- `node.json`: Mitamae configuration variables
+  - `upgrade/upgrade.sh`: Tool upgrade workflow
+- `Brewfile`: Homebrew dependencies (90+ formulae / 50+ casks)
+- `node.json`: Mitamae node variables
 - `etc/install_mitamae.sh`: Mitamae bootstrap script
 
 ### Configuration Loading Order

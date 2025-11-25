@@ -142,7 +142,7 @@ git_aicommit() {
   # Check if there are staged files
   if ! git diff --cached --quiet; then
     echo "Generating commit message with AI..."
-    COMMITMSG=$(claude -p "Generate ONLY a one-line Git commit message in English, using imperative mood, summarizing what was changed and why, based strictly on the contents of \`git diff --cached\`. Do not add explanation or a body. Output only the commit summary line.")
+    COMMITMSG=$(claude -p "Generate ONLY a one-line Git commit message in Japanese, using imperative mood, summarizing what was changed and why, based strictly on the contents of \`git diff --cached\`. Do not add explanation or a body. Output only the commit summary line.")
     git commit -m "$COMMITMSG" -e
   else
     echo "No staged changes to commit."

@@ -139,9 +139,15 @@ alias fd='find_cd'
 # Git commit message generator using AI
 # https://diary.hatenablog.jp/entry/2025/11/23/233725
 git_aicommit() {
-  echo "Generating commit message with AI..."
-  COMMITMSG=$(claude -p "Generate ONLY a one-line Git commit message in English, using imperative mood, summarizing what was changed and why, based strictly on the contents of \`git diff --cached\`. Do not add explanation or a body. Output only the commit summary line.")
-  git commit -m "$COMMITMSG" -e
+  # Check if there are staged files
+  if ! git diff --cached --quiet; then
+    echo "Generating commit message with AI..."
+    COMMITMSG=$(claude -p "Generate ONLY a one-line Git commit message in English, using imperative mood, summarizing what was changed and why, based strictly on the contents of \`git diff --cached\`. Do not add explanation or a body. Output only the commit summary line.")
+    git commit -m "$COMMITMSG" -e
+  else
+    echo "No staged changes to commit."
+    return 1
+  fi
 }
 
 # for zsh

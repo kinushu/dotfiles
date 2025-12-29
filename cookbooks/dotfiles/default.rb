@@ -7,6 +7,7 @@ p "Dotfiles path: #{dotfiles_path}, Home directory: #{home_dir}"
 
 config_path = File.join(dotfiles_path, 'config')
 
+# デプロイする設定ファイルのリスト(追加や削除があった場合はここを更新)
 config_files = [
   '.bash_profile',
   '.bashrc',
@@ -14,6 +15,7 @@ config_files = [
   '.claude/CLAUDE.md',
   '.claude/settings.json',
   '.claude/commands/gemini-search.md',
+  '.config/ghostty/config',
   '.config/mise/config.toml',
   '.config/starship.toml',
   '.gemrc',

@@ -1,0 +1,5 @@
+keybind = global:ctrl+e=toggle_quick_terminal
+
+quick-terminal-position = "top"
+quick-terminal-animation-duration = 0
+quick-terminal-screen = "main"

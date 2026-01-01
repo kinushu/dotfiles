@@ -52,6 +52,12 @@ decision-makers:
 
 - 元ネタ: trq212氏のX投稿（spec-based development with Claude Code）
 - 実装ファイル: `config/.claude/commands/dig.md`
+- https://x.com/Fumiya_Kume/status/2006046792304185399
+
+```
+/dig コマンドの実際の利用例
+dicisionに応じて次なる質問を投げかけてくれるので、網羅的に決めていくことができる。
+```
 
 ### 使用例
 

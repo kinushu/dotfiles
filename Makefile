@@ -15,6 +15,14 @@ deploy: ## Create symlink to home directory
 	@echo ''
 	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/deploy.sh
 
+deploy-dry-run: ## Dry-run deploy (show what would be done)
+	@echo '==> Dry-run: showing what would be deployed.'
+	@echo ''
+	@DOTPATH=$(DOTPATH) DRY_RUN=1 bash $(DOTPATH)/etc/deploy.sh
+
+check-links: ## Check for unlinked files in config/
+	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/check_links.sh
+
 init: deploy ## Setup environment settings
 	@echo '==> Setup environment settings.'
 	@echo ''

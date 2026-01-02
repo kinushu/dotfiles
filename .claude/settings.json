@@ -9,8 +9,24 @@
       "Bash(./bin/setup)",
       "Bash(gemini:*)",
       "Bash(cat:*)",
-      "Bash(afplay:*)"
+      "Bash(afplay:*)",
+      "Bash(tree:*)",
+      "WebFetch(domain:adr.github.io)",
+      "WebFetch(domain:x.com)",
+      "Skill(gemini-search)"
     ],
-    "deny": []
+    "deny": [
+      "Bash(diskutil eraseDisk:*)",
+      "Bash(mkfs:*)",
+      "Bash(fdisk:*)",
+      "Bash(parted:*)",
+      "Bash(dd:*)",
+      "Bash(git reset --hard:*)",
+      "Bash(git clean -fdx:*)",
+      "Bash(git push --force:*)",
+      "Bash(docker system prune:*)",
+      "Read(**/.env*)",
+      "Read(**/.ssh/**)"
+    ]
   }
 }

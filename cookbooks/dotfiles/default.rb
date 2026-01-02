@@ -7,59 +7,33 @@ p "Dotfiles path: #{dotfiles_path}, Home directory: #{home_dir}"
 
 config_path = File.join(dotfiles_path, 'config')
 
-# デプロイする設定ファイルのリスト(追加や削除があった場合はここを更新)
-config_files = [
-  '.bash_profile',
-  '.bashrc',
-  '.codex/AGENTS.md',
-  '.claude/CLAUDE.md',
-  '.claude/settings.json',
-  '.claude/commands/gemini-search.md',
-  '.config/ghostty/config',
-  '.config/mise/config.toml',
-  '.config/starship.toml',
-  '.gemrc',
-  '.gitignore_global',
-  '.vimrc',
-  '.zshrc'
-]
+# config/以下のファイルを動的にスキャンしてリストを生成
+# File::FNM_DOTMATCH でドットファイルも含める
+# .DS_Storeなどは除外
+config_files = Dir.glob(File.join(config_path, '**', '*'), File::FNM_DOTMATCH)
+                  .select { |f| File.file?(f) }
+                  .reject { |f| f.include?('.DS_Store') }
+                  .map { |f| f.sub("#{config_path}/", '') }
 
-# 特殊なケース用のディレクトリマッピングを定義
-# special_dirs = {
-#   # 'claude' => '.claude'
-# }
-
-# 特殊なケース用に必要なディレクトリを作成
-# special_dirs.each do |dir_name, target_dir|
-#   directory File.join(home_dir, target_dir) do
-#     action :create
-#   end
-# end
+p "Found #{config_files.length} config files to deploy"
 
 # configディレクトリからすべてのファイルを自動的にデプロイ
 config_files.each do |path|
-  next if File.directory?(path)
-
-  # configディレクトリからの相対パスを取得
-  relative_path = path.sub(config_path, '')
-
-  if relative_path.include?('/')
+  if path.include?('/')
     # ファイルがサブディレクトリにある場合
-    dir = File.dirname(relative_path) # ディレクトリ部分を取得
-    # ホームディレクトリのサブディレクトリを取得
+    dir = File.dirname(path)
     home_subdir = File.join(home_dir, dir)
-    # p "Creating directory: #{home_subdir}"
     # ディレクトリが存在しない場合は作成
     directory home_subdir do
       action :create
     end
   end
+
   # ターゲットパスを決定
   dst_path = File.join(home_dir, path)
   src_path = File.join(config_path, path)
 
   # シンボリックリンクを作成
-  # p "Linking #{src_path} to #{dst_path}"
   link dst_path do
     to src_path
     force true

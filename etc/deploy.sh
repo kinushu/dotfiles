@@ -10,4 +10,10 @@ cd ../
 
 bash ./etc/install_mitamae.sh
 
-bin/mitamae local ./cookbooks/dotfiles/default.rb
+if [ "${DRY_RUN:-}" = "1" ]; then
+  echo "[DRY-RUN MODE] 以下の変更が適用されます:"
+  echo ""
+  bin/mitamae local --dry-run ./cookbooks/dotfiles/default.rb
+else
+  bin/mitamae local ./cookbooks/dotfiles/default.rb
+fi

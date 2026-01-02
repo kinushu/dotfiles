@@ -19,3 +19,4 @@
 | 2026-01-01 | dotfilesプロジェクトレビュー | accepted |
 | 2026-01-01 | ADR運用開始 | proposed |
 | 2026-01-02 | /dig コマンド追加 | accepted |
+| 2026-01-02 | deploy dry-run と link check 機能追加 | proposed |

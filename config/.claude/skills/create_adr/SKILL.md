@@ -11,7 +11,7 @@ description: MADR形式でArchitecture Decision Recordを作成する。ADR作�
   1-1. タイトルは簡潔に、内容を反映したものにする
   1-2. タイトルは基本的に英語、半角数字、_ で記述する。
 2. 以下のテンプレートで `docs/adr/YYYY-MM-DD_タイトル.md` を作成
-3. `docs/adr/README.md` のADR一覧テーブルに追記
+3. `docs/adr/README.md` が無ければこちらのフォルダの役割を解説する内容で作成。
 
 ## テンプレート
 

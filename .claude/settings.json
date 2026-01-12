@@ -11,8 +11,10 @@
       "Bash(cat:*)",
       "Bash(afplay:*)",
       "Bash(tree:*)",
+      "WebSearch",
       "WebFetch(domain:adr.github.io)",
       "WebFetch(domain:x.com)",
+      "Skill(create_adr)",
       "Skill(gemini-search)"
     ],
     "deny": [

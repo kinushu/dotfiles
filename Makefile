@@ -44,6 +44,11 @@ install: update deploy init ## Run make update, deploy, init
 upgrade: update ## Upgrade modules
 	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/upgrade/upgrade.sh
 
+clean: ## Remove all symlinks
+	@echo '==> Remove all symlinks from home directory.'
+	@echo ''
+	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/clean.sh
+
 help: ## Self-documented Makefile
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| sort \

@@ -1,6 +1,6 @@
 #!/bin/zsh
 
-set +eu
+set -eu
 
 source $HOME/.zshrc
 

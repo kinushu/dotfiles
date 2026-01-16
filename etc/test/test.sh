@@ -1,8 +1,8 @@
 #!/bin/zsh
 
-echo "test start."
+set -eu
 
-set +eu
+echo "test start."
 
 source $HOME/.bash_profile
 

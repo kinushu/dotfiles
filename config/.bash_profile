@@ -45,7 +45,8 @@ if [[ -f ~/.bashrc.local ]]; then
 fi
 
 # mise (replaces asdf)
-if command -v mise >/dev/null 2>&1; then
+# zshから読み込まれた場合はスキップ（.zshrcで別途zsh用にactivateする）
+if command -v mise >/dev/null 2>&1 && [ -n "${BASH_VERSION:-}" ]; then
   eval "$(mise activate bash)"
 fi
 

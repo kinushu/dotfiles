@@ -1,9 +1,8 @@
 #!/bin/zsh
 
-set -eu
-
+# .zshrc読み込み時は未定義変数エラーを無視（oh-my-zsh等が未定義変数を使用するため）
+set +eu
 source $HOME/.zshrc
-
 set -eu
 
 # ## ruby, rbenv

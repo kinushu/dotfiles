@@ -13,7 +13,7 @@ bash ./etc/install_mitamae.sh
 if [ "${DRY_RUN:-}" = "1" ]; then
   echo "[DRY-RUN MODE] 以下の変更が適用されます:"
   echo ""
-  bin/mitamae local --dry-run ./cookbooks/dotfiles/default.rb
+  bin/mitamae local --dry-run ./roles/darwin.rb --node-json node.json
 else
-  bin/mitamae local ./cookbooks/dotfiles/default.rb
+  bin/mitamae local ./roles/darwin.rb --node-json node.json
 fi

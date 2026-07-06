@@ -24,6 +24,7 @@ export PATH="/opt/homebrew/sbin:/opt/homebrew/bin/:$PATH"
 
 # home bin
 export PATH=$HOME/bin:$PATH
+export PATH=$HOME/.local/bin:$PATH
 
 export MANPATH=/opt/local/man:$MANPATH
 
@@ -45,8 +46,14 @@ if [[ -f ~/.bashrc.local ]]; then
 fi
 
 # mise (replaces asdf)
+# .zshrc からも source されるため、実行中のシェルに合わせて有効化する。
+# bash 用の activate を zsh で eval すると unset で hash table element エラーが出る。
 if command -v mise >/dev/null 2>&1; then
-  eval "$(mise activate bash)"
+  if [ -n "${ZSH_VERSION:-}" ]; then
+    eval "$(mise activate zsh)"
+  else
+    eval "$(mise activate bash)"
+  fi
 fi
 
 # echo ".bash_profile end"

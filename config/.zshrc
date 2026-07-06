@@ -137,7 +137,7 @@ find_cd() {
 alias fd='find_cd'
 
 # Git commit message generator using AI
-# https://diary.hatenablog.jp/entry/2025/11/23/233725
+# 参考: 外部ブログ記事を基に作成
 git_aicommit() {
   # Check if there are staged files
   if ! git diff --cached --quiet; then
@@ -158,3 +158,6 @@ if [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/path.zsh.i
 if [ -f '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc' ]; then . '/usr/local/Caskroom/google-cloud-sdk/latest/google-cloud-sdk/completion.zsh.inc'; fi
 
 eval "$(starship init zsh)"
+
+eval "$(direnv hook zsh)"
+

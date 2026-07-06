@@ -2,13 +2,21 @@
 .DS_Store
 .idea
 .generators
-.envrc
+.env
+# .envrc
 .ruby-version
 .tool-versions
 
 # office temp file
 ~$*.*
 
+*.local.*
+
 ## memo
 .memo.local.*
 
+## git-wt
+.wt/**/*
+.worktrees/**/*
+
+**/.claude/settings.local.json

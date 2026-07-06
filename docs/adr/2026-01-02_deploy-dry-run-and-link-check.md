@@ -17,7 +17,7 @@ decision-makers:
 現時点で5ファイルがリンクされていない状態:
 - `.claude/commands/dig.md`
 - `.claude/commands/discuss-with-gemini.md`
-- `.claude/skills/code-review/SKILL.md`
+- `.claude/skills/review-code/SKILL.md`
 - `.claude/skills/commit-message/SKILL.md`
 - `.claude/skills/create_adr/SKILL.md`
 

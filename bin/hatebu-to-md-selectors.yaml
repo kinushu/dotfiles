@@ -1,0 +1,129 @@
+# hatebu-to-md セレクタ設定ファイル
+#
+# サイトごとに記事コンテンツを抽出するためのCSSセレクタを定義します。
+# 設定がないサイトはreadability-cliでフォールバック抽出されます。
+#
+# 書式:
+#   ホスト名:
+#     selector: CSSセレクタ（記事本文を含む要素）
+#     remove:   除去するセレクタのリスト（オプション）
+#     title_selector: タイトル要素のセレクタ（オプション）
+#     js_required: false # 従来のHTTP取得を使用（デフォルトはPlaywright）
+#
+# セレクタの例:
+#   - article           # タグ名
+#   - .entry-content    # クラス名
+#   - #main-content     # ID
+#   - article.post      # タグ名+クラス名
+#   - div[role="main"]  # 属性セレクタ
+
+sites:
+  # X (Twitter)
+  x.com:
+    selector: "article[data-testid='tweet']"
+
+  twitter.com:
+    selector: "article[data-testid='tweet']"
+
+  # Qiita
+  qiita.com:
+    selector: "article.it-MdContent"
+    remove:
+      - ".it-MdContent-nav"
+      - ".it-MdContent-footer"
+
+  # Zenn
+  zenn.dev:
+    selector: "article.znc"
+    remove:
+      - ".embed-card"
+
+  # note
+  note.com:
+    selector: "div.p-article__content"
+
+  # はてなブログ（サブドメイン対応）
+  hatenablog.com:
+    selector: "div.entry-content"
+    remove:
+      - ".hatena-asin-detail"
+
+  hatenablog.jp:
+    selector: "div.entry-content"
+    remove:
+      - ".hatena-asin-detail"
+
+  hateblo.jp:
+    selector: "div.entry-content"
+    remove:
+      - ".hatena-asin-detail"
+
+  anond.hatelabo.jp:
+    selector: "div#body"
+    remove:
+      - ".hatena-asin-detail"
+
+  www.47news.jp:
+    selector: "div#detail_area"
+
+  # Medium
+  medium.com:
+    selector: "article"
+
+  # Dev.to
+  dev.to:
+    selector: "div.crayons-article__main"
+
+  # GitHub（README等）
+  github.com:
+    selector: "article.markdown-body"
+
+  # Gist
+  gist.github.com:
+    selector: "div.gist-content"
+
+  # Stack Overflow
+  stackoverflow.com:
+    selector: "div.s-prose"
+
+  # Wikipedia
+  wikipedia.org:
+    selector: "div#mw-content-text"
+    remove:
+      - ".mw-editsection"
+      - ".navbox"
+      - ".infobox"
+
+  # ITmedia
+  itmedia.co.jp:
+    selector: "article"
+    title_selector: "h1.title"
+    remove:
+      - ".ad"
+
+  # GIGAZINE
+  gigazine.net:
+    selector: "div.cntimage"
+    remove:
+      - ".ad"
+
+  # Publickey
+  publickey1.jp:
+    selector: "div.entry-content"
+
+  # 少年ジャンプ＋
+  shonenjumpplus.com:
+    selector: "div.js-episode-main"
+
+  # コミックDAYS
+  comic-days.com:
+    selector: "div.js-episode-main"
+
+  # となりのヤングジャンプ
+  tonarinoyj.jp:
+    selector: "div.js-episode-main"
+
+# デフォルト設定（どのサイトにもマッチしない場合）
+# readability-cli が使用されます
+default:
+  use_readability: true

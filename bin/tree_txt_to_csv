@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# tree_txt_to_csv - tree コマンドの罫線付きテキスト出力を CSV に変換するユーティリティ
+# 階層を level1, level2, ... の列に展開し、親パスを継承した行ごとに出力する
+
+require 'csv'
+require 'optparse'
+
+# tree 出力の 1 行を解析して depth と名前を取り出すクラス
+class TreeLineParser
+  # 罫線部の 1 段分は 4 文字（"│   " または "    "）
+  INDENT_WIDTH = 4
+  BRANCH_MARKERS = ['├── ', '└── '].freeze
+  # 末尾サマリ行（"273 directories", "12 files", "5 directories, 3 files" 等）
+  SUMMARY_PATTERN = /\A\d+\s+(?:directories|files)(?:,\s*\d+\s+files)?\z/
+
+  Result = Struct.new(:depth, :name, keyword_init: true)
+
+  # 解析できない行（空行、サマリ行）は nil を返す
+  def self.parse(line)
+    stripped = line.rstrip
+    return nil if stripped.empty?
+    return nil if SUMMARY_PATTERN.match?(stripped)
+
+    marker_index = BRANCH_MARKERS.map { |m| stripped.index(m) }.compact.min
+    if marker_index.nil?
+      # ルート行（罫線なし、例: "."）。depth=0 として扱う
+      Result.new(depth: 0, name: stripped)
+    else
+      indent_part = stripped[0...marker_index]
+      depth = (indent_part.length / INDENT_WIDTH) + 1
+      name_start = marker_index + BRANCH_MARKERS.first.length
+      name = stripped[name_start..] || ''
+      Result.new(depth: depth, name: name)
+    end
+  end
+end
+
+# 解析結果を親スタックで階層展開し、CSV 行配列に変換するクラス
+class TreeToCsvConverter
+  def initialize
+    @rows = []
+    @stack = []
+    @max_depth = 0
+  end
+
+  def add_line(line)
+    parsed = TreeLineParser.parse(line)
+    return unless parsed
+
+    # 現在の depth より下位の親を切り詰めてから自分を積む
+    @stack = @stack[0...parsed.depth]
+    @stack[parsed.depth] = parsed.name
+    @max_depth = parsed.depth if parsed.depth > @max_depth
+
+    @rows << @stack.dup
+  end
+
+  # ヘッダ + データ行を CSV 文字列で返す
+  def to_csv
+    column_count = @max_depth + 1
+    headers = (1..column_count).map { |i| "level#{i}" }
+
+    CSV.generate do |csv|
+      csv << headers
+      @rows.each do |row|
+        padded = Array.new(column_count) { |i| row[i] }
+        csv << padded
+      end
+    end
+  end
+end
+
+def parse_options(argv)
+  options = {}
+  parser = OptionParser.new do |opts|
+    opts.banner = "使用方法: #{$PROGRAM_NAME} [入力ファイル]"
+    opts.separator ''
+    opts.separator 'tree コマンドの罫線付きテキスト出力を読み取り、階層展開した CSV を標準出力へ書き出します。'
+    opts.separator '入力はファイル引数または標準入力から受け取ります。'
+    opts.separator ''
+    opts.on('-h', '--help', 'このヘルプを表示する') do
+      puts opts
+      exit 0
+    end
+  end
+  parser.parse!(argv)
+  options
+end
+
+def run(argv)
+  parse_options(argv)
+  converter = TreeToCsvConverter.new
+  ARGF.each_line do |line|
+    converter.add_line(line)
+  end
+  print converter.to_csv
+end
+
+run(ARGV) if __FILE__ == $PROGRAM_NAME

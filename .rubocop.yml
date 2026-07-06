@@ -6,8 +6,9 @@ AllCops:
     - 'tmp/**/*'
     - 'node_modules/**/*'
 
-# Style/Documentation:
-#   Enabled: false
+# ユーティリティスクリプト中心のリポジトリのため、クラスの top-level ドキュメント必須は無効化する
+Style/Documentation:
+  Enabled: false
 
 # Style/StringLiterals:
 #   Enabled: true
@@ -33,20 +34,49 @@ Style/FetchEnvVar:
 # Metrics/LineLength:
 #   Max: 120
 
+# bin/ と config/bin/ の実行系ユーティリティスクリプトには、
+# 複雑度・長さ系の Metrics を課さない（既存の bin/* 除外方針を踏襲・拡張）。
 Metrics/MethodLength:
 #   Max: 20
   Exclude:
     - 'bin/*'
+    - 'config/bin/*'
 
 Metrics/AbcSize:
 #   Max: 20
   Exclude:
     - 'bin/*'
+    - 'config/bin/*'
 
+Metrics/ClassLength:
+  Exclude:
+    - 'bin/*'
+    - 'config/bin/*'
+
+Metrics/CyclomaticComplexity:
+  Exclude:
+    - 'bin/*'
+    - 'config/bin/*'
+
+Metrics/PerceivedComplexity:
+  Exclude:
+    - 'bin/*'
+    - 'config/bin/*'
+
+Metrics/ParameterLists:
+  Exclude:
+    - 'bin/*'
+    - 'config/bin/*'
+
+# BlockLength はスクリプトに加え、mitamae DSL（長いブロックが自然）も除外する
 Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
     - 'lib/tasks/**/*.rake'
+    - 'bin/*'
+    - 'config/bin/*'
+    - 'cookbooks/**/*'
+    - 'roles/**/*'
 
 # Style/BlockDelimiters:
 #   EnforcedStyle: semantic

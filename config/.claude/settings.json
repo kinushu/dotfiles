@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "permissions": {
     "allow": [
       "Bash(find:*)",
@@ -9,37 +13,122 @@
       "Bash(cat:*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr diff:*)",
+      "Bash(git log:*)",
+      "Bash(codex exec:*)",
       "Bash(docker compose:*)",
       "Bash(docker compose exec:*)",
       "Bash(docker compose logs:*)",
       "Bash(bundle install)",
       "Bash(afplay:*)",
-      "Bash(gemini:*)"
+      "Bash(gemini:*)",
+      "Bash(open:*)",
+      "Bash(~/bin/md-open:*)",
+      "Bash(git diff:*)",
+      "Bash(git commit:*)",
+      "Bash(whois:*)",
+      "Bash(dig:*)",
+      "Bash(rg:*)",
+      "Bash(mktemp:*)",
+      "Bash(trash:*)",
+      "Skill(commit-changes)",
+      "Skill(create-adr)",
+      "Skill(research-topic)",
+      "Skill(investigate-domain)",
+      "Skill(review-code)",
+      "Skill(review-by-codex)"
     ],
     "deny": [
       "Bash(sudo:*)",
       "Bash(rm:*)",
       "Bash(git push:*)",
-      "Read(.env.*)",
-      "Read(.env_*)",
-      "Read(id_*)",
-      "Write(.env.*)",
-      "Write(.env_*)",
-      "Write(id_*)"
-    ]
+      "Bash(git push --force:*)",
+      "Bash(dd:*)",
+      "Bash(mkfs:*)",
+      "Bash(fdisk:*)",
+      "Bash(parted:*)",
+      "Bash(diskutil eraseDisk:*)",
+      "Read(//**/.env*)",
+      "Edit(//**/.env*)",
+      "Write(//**/.env*)",
+      "Read(//**/*credentials*)",
+      "Edit(//**/*credentials*)",
+      "Write(//**/*credentials*)",
+      "Read(//**/.ssh/**)",
+      "Edit(//**/.ssh/**)",
+      "Write(//**/.ssh/**)",
+      "Read(//**/id_*)",
+      "Edit(//**/id_*)",
+      "Write(//**/id_*)"
+    ],
+    "defaultMode": "auto"
   },
   "hooks": {
-    "Stop": [
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/verify-edited-file.sh"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
       {
         "matcher": "Bash",
         "hooks": [
           {
             "type": "command",
-            "command": "afplay /System/Library/Sounds/Glass.aiff"
+            "command": "~/.claude/hooks/guard-dangerous-command.sh"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '~/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "afplay /System/Library/Sounds/Glass.aiff >/dev/null 2>&1 || true"
           }
         ]
       }
     ]
   },
-  "alwaysThinkingEnabled": true
+  "statusLine": {
+    "type": "command",
+    "command": "python3 ~/.claude/statusline-command.sh"
+  },
+  "enabledPlugins": {
+    "codex@openai-codex": true,
+    "document-skills@anthropic-agent-skills": true,
+    "frontend-design@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "openai-codex": {
+      "source": {
+        "source": "github",
+        "repo": "openai/codex-plugin-cc"
+      }
+    }
+  },
+  "alwaysThinkingEnabled": true,
+  "tui": "fullscreen",
+  "theme": "dark-daltonized",
+  "remoteControlAtStartup": true,
+  "agentPushNotifEnabled": true,
+  "skipAutoPermissionPrompt": true
 }

@@ -10,7 +10,12 @@ set -eu
 
 echo $PATH
 
-brew -v
+# Homebrew は macOS のみ（Ubuntu では apt + mise 構成のため存在しない）。
+# .bash_profile が brew を alias 定義しているため command -v では判定できず、
+# OS 判定で分岐する。
+if [ "$(uname -s)" = "Darwin" ]; then
+  brew -v
+fi
 git --version
 which git
 ruby -v

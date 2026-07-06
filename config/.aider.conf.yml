@@ -1,0 +1,28 @@
+# aider-chat デフォルト設定
+# 参照: https://aider.chat/docs/config/aider_conf.html
+# 根拠 ADR: docs/adr/2026-05-28_1000_introduce_ollama_as_local_cli_chat.md
+#
+# 本ファイルは aider-safe ラッパー経由で --config 指定して読み込まれる。
+# 直接 aider を起動した場合のホーム配下フォールバックとしても利用可。
+
+# 主力モデル（qwen3:8b）。大きめモデルへの切替は CLI フラグや alias で対応
+model: ollama/qwen3:8b
+
+# diff 形式の編集を要求（コンテキスト圧縮と差分レビューの両立）
+edit-format: diff
+
+# AI 編集ごとに自動 git commit（メッセージは AI 生成）
+auto-commits: true
+
+# .gitignore を尊重
+gitignore: true
+
+# fence サンドボックス内では ~/.aider/caches への書込が拒否されるため
+# 自己アップデートチェックを無効化（aider 自体の更新は brew で行う）
+check-update: false
+
+# 確認プロンプトは残す（--yes-always は使わない）。
+# fence によるサンドボックスと aider 自身の対話確認の二層防御を維持。
+
+# Ollama サーバ URL（既定値だが明示）
+# OLLAMA_API_BASE: http://localhost:11434

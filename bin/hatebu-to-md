@@ -1,0 +1,1036 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+#
+# hatebu-to-md - はてなブックマークのRSSからMarkdownファイルを生成する
+#
+# 使用方法: hatebu-to-md <username> [options]
+#
+
+require 'English'
+require 'fileutils'
+require 'net/http'
+require 'uri'
+require 'rss'
+require 'yaml'
+require 'time'
+require 'optparse'
+require 'tempfile'
+require 'open3'
+require 'json'
+
+begin
+  require 'nokogiri'
+  NOKOGIRI_AVAILABLE = true
+rescue LoadError
+  NOKOGIRI_AVAILABLE = false
+end
+
+# Playwright の存在チェック
+PLAYWRIGHT_AVAILABLE = system('command -v npx > /dev/null 2>&1')
+
+class HatebuToMarkdownError < StandardError; end
+class EmptyContentError < HatebuToMarkdownError; end
+
+class HatebuToMarkdown
+  DEFAULT_COUNT = 10
+  DEFAULT_OUTPUT_DIR = './tmp/hatebu-md'
+  DEFAULT_LOG_DIR = './log'
+  MAX_TITLE_LENGTH = 50
+  SELECTORS_FILE = File.join(__dir__, 'hatebu-to-md-selectors.yaml')
+  PLAYWRIGHT_TIMEOUT = 30_000 # 30秒
+
+  def initialize
+    @username = nil
+    @count = DEFAULT_COUNT
+    @output_dir = DEFAULT_OUTPUT_DIR
+    @log_dir = DEFAULT_LOG_DIR
+    @quiet = false
+    @force = false
+    @dry_run = false
+    @log_file = nil
+    @history_file = nil
+    @lock_file = nil
+    @selectors = load_selectors
+    @single_url = nil
+    @last_fetch_error = nil
+  end
+
+  def run(args)
+    parse_args(args)
+    setup_directories
+    check_dependencies unless @dry_run
+
+    run_body = lambda do
+      # --url オプションがある場合は単一URLを処理
+      mode_suffix = @force ? ', 強制再取得' : ''
+      mode_suffix += ', ドライラン' if @dry_run
+      entries = if @single_url
+                  log_info "開始: URL=#{@single_url}, 出力先=#{@output_dir}#{mode_suffix}"
+                  [{ url: @single_url, title: nil }]
+                else
+                  log_info "開始: ユーザー=#{@username}, 取得件数=#{@count}, 出力先=#{@output_dir}#{mode_suffix}"
+                  fetch_rss_entries
+                end
+
+      if entries.empty?
+        log_error 'RSSから記事が取得できませんでした'
+        exit 1
+      end
+
+      log_info "取得対象: #{entries.size}件"
+
+      # ドライランモード: 対象一覧を表示して終了
+      if @dry_run
+        entries.each_with_index do |entry, index|
+          url = entry[:url]
+          title = entry[:title] || '(タイトル未取得)'
+          status = if !@force && already_fetched?(url)
+                     'スキップ（取得済み）'
+                   else
+                     '取得予定'
+                   end
+          log_progress "[#{index + 1}/#{entries.size}] [#{status}] #{title}"
+          log_progress "    #{url}"
+        end
+        log_info 'ドライラン完了（実際の取得・保存は行っていません）'
+        return
+      end
+
+      success_count = 0
+      failed_count = 0
+      skipped_count = 0
+
+      entries.each_with_index do |entry, index|
+        result = process_entry(entry, index + 1, entries.size)
+        case result
+        when :success then success_count += 1
+        when :failed then failed_count += 1
+        when :skipped then skipped_count += 1
+        end
+      end
+
+      log_info "完了: 成功=#{success_count}, 失敗=#{failed_count}, スキップ=#{skipped_count}"
+    end
+
+    if @dry_run
+      run_body.call
+    else
+      with_lock(&run_body)
+    end
+  end
+
+  private
+
+  def load_selectors
+    return {} unless File.exist?(SELECTORS_FILE)
+
+    config = YAML.load_file(SELECTORS_FILE)
+    config['sites'] || {}
+  rescue StandardError => e
+    warn "セレクタ設定ファイルの読み込みに失敗: #{e.message}"
+    {}
+  end
+
+  def get_selector_config(url)
+    uri = URI.parse(url)
+    host = uri.host
+
+    # 完全一致
+    return @selectors[host] if @selectors[host]
+
+    # サブドメイン対応（例: blog.example.com -> example.com）
+    @selectors.each do |pattern, config|
+      return config if host.end_with?(pattern)
+    end
+
+    nil
+  end
+
+  def parse_args(args)
+    parser = OptionParser.new do |opts|
+      opts.banner = '使用方法: hatebu-to-md <username> [options]'
+      opts.separator ''
+      opts.separator 'はてなブックマークのRSSフィードから記事を取得し、Markdownファイルに変換します。'
+      opts.separator ''
+      opts.separator '引数:'
+      opts.separator '  username          はてなブックマークのユーザー名'
+      opts.separator ''
+      opts.separator 'オプション:'
+
+      opts.on('-n', '--count NUM', Integer, "取得件数 (デフォルト: #{DEFAULT_COUNT})") do |n|
+        @count = n
+      end
+
+      opts.on('-o', '--output DIR', "出力フォルダ (デフォルト: #{DEFAULT_OUTPUT_DIR})") do |dir|
+        @output_dir = dir
+      end
+
+      opts.on('-l', '--log-dir DIR', "ログ出力先 (デフォルト: #{DEFAULT_LOG_DIR})") do |dir|
+        @log_dir = dir
+      end
+
+      opts.on('-q', '--quiet', '進捗表示を抑制') do
+        @quiet = true
+      end
+
+      opts.on('-u', '--url URL', '特定のURLを直接取得（RSSを使用しない）') do |url|
+        @single_url = url
+      end
+
+      opts.on('-f', '--force', '取得済みのURLも再取得する') do
+        @force = true
+      end
+
+      opts.on('-d', '--dry-run', 'RSSを取得して対象一覧を表示するが、記事の取得・保存は行わない') do
+        @dry_run = true
+      end
+
+      opts.on('-h', '--help', 'このヘルプを表示') do
+        puts opts
+        puts ''
+        puts '出力構成:'
+        puts '  <output-dir>/              # Markdownファイル出力先'
+        puts '  ├── history.yaml           # 取得履歴（重複判定用）'
+        puts '  └── *.md                   # 変換されたMarkdownファイル'
+        puts ''
+        puts '  <log-dir>/'
+        puts '  └── hatebu-to-md.log       # 実行ログ'
+        puts ''
+        puts '設定ファイル:'
+        puts "  #{SELECTORS_FILE}"
+        puts '  サイトごとのCSSセレクタを定義できます'
+        puts ''
+        puts '依存ツール:'
+        puts '  nokogiri (gem), readability-cli, pandoc'
+        puts ''
+        puts '例:'
+        puts '  hatebu-to-md myuser'
+        puts '  hatebu-to-md myuser -n 20 -o ~/bookmarks'
+        puts '  hatebu-to-md myuser --force              # 取得済みも再取得'
+        puts '  hatebu-to-md myuser --dry-run            # 対象一覧のみ表示'
+        puts '  hatebu-to-md --url https://example.com/article'
+        exit 0
+      end
+    end
+
+    parser.parse!(args)
+
+    # --url オプションがない場合はユーザー名が必須
+    if @single_url.nil? && args.empty?
+      warn 'エラー: ユーザー名を指定するか、--url オプションでURLを指定してください'
+      warn ''
+      warn parser.help
+      exit 1
+    end
+
+    @username = args.first unless args.empty?
+  end
+
+  def setup_directories
+    @history_file = File.join(@output_dir, 'history.yaml')
+    @lock_file = File.join(@output_dir, '.lock')
+    @log_file = File.join(@log_dir, 'hatebu-to-md.log')
+
+    return if @dry_run
+
+    FileUtils.mkdir_p(@output_dir)
+    FileUtils.mkdir_p(@log_dir)
+
+    return if File.exist?(@history_file)
+
+    File.write(@history_file, { 'entries' => [] }.to_yaml)
+  end
+
+  def check_dependencies
+    missing = []
+    missing << 'nokogiri (gem install nokogiri)' unless NOKOGIRI_AVAILABLE
+    missing << 'readability-cli (readable)' unless command_exists?('readable')
+    missing << 'pandoc' unless command_exists?('pandoc')
+
+    unless missing.empty?
+      log_error '以下のツールがインストールされていません:'
+      missing.each { |cmd| warn "  - #{cmd}" }
+      warn ''
+      warn 'インストール方法:'
+      warn '  gem install nokogiri'
+      warn '  brew install pandoc'
+      warn '  npm install -g readability-cli'
+      exit 1
+    end
+
+    # Playwright の警告（オプション）
+    return if PLAYWRIGHT_AVAILABLE
+
+    log_info '注意: Playwright が未インストールのため、JS必須サイト（X/Twitter等）は取得できません'
+    log_info '  インストール: npm install -g playwright && npx playwright install chromium'
+  end
+
+  def command_exists?(cmd)
+    system("command -v #{cmd} > /dev/null 2>&1")
+  end
+
+  def with_lock
+    File.open(@lock_file, File::RDWR | File::CREAT) do |lock|
+      unless lock.flock(File::LOCK_EX | File::LOCK_NB)
+        log_error '別のプロセスが実行中です'
+        exit 1
+      end
+
+      begin
+        yield
+      ensure
+        lock.flock(File::LOCK_UN)
+      end
+    end
+  end
+
+  def log_info(message)
+    puts "[INFO] #{message}" unless @quiet
+    write_log("[INFO] #{message}")
+  end
+
+  def log_error(message)
+    warn "[ERROR] #{message}"
+    write_log("[ERROR] #{message}")
+  end
+
+  def log_progress(message)
+    puts message unless @quiet
+    write_log(message)
+  end
+
+  def log_debug(message)
+    write_log("[DEBUG] #{message}")
+  end
+
+  def notify_macos(title, message)
+    return unless RUBY_PLATFORM.include?('darwin')
+
+    escaped_title = title.gsub('"', '\\"')
+    escaped_message = message.gsub('"', '\\"')
+    system('osascript', '-e', "display notification \"#{escaped_message}\" with title \"#{escaped_title}\"")
+  end
+
+  def write_log(message)
+    return unless @log_file
+
+    File.open(@log_file, 'a') do |f|
+      f.puts "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} #{message}"
+    end
+  end
+
+  def fetch_rss_entries
+    rss_url = "https://b.hatena.ne.jp/#{@username}/rss"
+    body = fetch_with_redirect(rss_url)
+
+    unless body
+      log_error "RSSの取得に失敗しました: #{rss_url}"
+      exit 1
+    end
+
+    rss = RSS::Parser.parse(body, false)
+    rss.items.first(@count).map do |item|
+      {
+        url: item.link,
+        title: item.title
+      }
+    end
+  end
+
+  def fetch_with_redirect(url, limit = 5)
+    return nil if limit <= 0
+
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == 'https'
+    http.open_timeout = 30
+    http.read_timeout = 30
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request['User-Agent'] = 'Mozilla/5.0 (compatible; hatebu-to-md/1.0)'
+
+    response = http.request(request)
+
+    case response
+    when Net::HTTPSuccess
+      response.body
+    when Net::HTTPRedirection
+      fetch_with_redirect(response['location'], limit - 1)
+    end
+  rescue StandardError => e
+    log_error "HTTP取得エラー: #{e.message}"
+    nil
+  end
+
+  def process_entry(entry, index, total)
+    url = entry[:url]
+    rss_title = entry[:title]
+    warnings = []
+
+    log_progress "[#{index}/#{total}] 処理中: #{url}"
+
+    # 重複チェック（--force オプションで無視）
+    if !@force && already_fetched?(url)
+      log_progress "[#{index}/#{total}] スキップ（取得済み）: #{url}"
+      return :skipped
+    end
+
+    # セレクタ設定を取得（設定がない場合はデフォルトでarticleタグを試す）
+    selector_config = get_selector_config(url)
+    use_default_article = selector_config.nil?
+    selector_config ||= { 'selector' => 'article' }
+    # js_required: false が明示されている場合のみ従来手法を使用
+    use_static_fetch = selector_config['js_required'] == false
+
+    # HTML取得（デフォルトはPlaywright、js_required: false の場合のみ従来手法）
+    html_content = if use_static_fetch || !PLAYWRIGHT_AVAILABLE
+                     log_debug '従来のHTTP取得を使用'
+                     fetch_url(url)
+                   else
+                     log_debug 'Playwrightで取得'
+                     fetch_with_playwright(url)
+                   end
+
+    unless html_content
+      error_reason = @last_fetch_error || 'Unknown error'
+      log_error "[#{index}/#{total}] 取得失敗: #{url} (#{error_reason})"
+      add_to_history(url, 'failed', rss_title, nil, error_reason)
+      return :failed
+    end
+
+    # コンテンツ抽出（セレクタ設定があれば使用、なければreadability）
+    extracted_html = nil
+    extraction_method = nil
+    fetch_method = use_static_fetch || !PLAYWRIGHT_AVAILABLE ? 'http' : 'playwright'
+
+    if selector_config && selector_config['selector'] && NOKOGIRI_AVAILABLE
+      extracted_html = extract_with_selector(html_content, selector_config)
+      if extracted_html && !extracted_html.strip.empty?
+        extraction_method = "#{fetch_method}+selector"
+        if use_default_article
+          log_debug 'デフォルトarticleタグで抽出'
+        else
+          log_debug "セレクタで抽出: #{selector_config['selector']}"
+        end
+      end
+    end
+
+    # セレクタ設定がないサイトでarticleタグがなければmainタグを試す
+    if use_default_article && (extracted_html.nil? || extracted_html.strip.empty?) && NOKOGIRI_AVAILABLE
+      log_debug 'articleタグが見つからないためmainタグを試行'
+      extracted_html = extract_with_selector(html_content, { 'selector' => 'main' })
+      if extracted_html && !extracted_html.strip.empty?
+        extraction_method = "#{fetch_method}+selector(main)"
+        log_debug 'mainタグで抽出'
+      end
+    end
+
+    # セレクタで抽出できなかった場合
+    if extracted_html.nil? || extracted_html.strip.empty?
+      # use_readability: true が設定されている場合のみ readability を使用
+      if selector_config && selector_config['use_readability']
+        log_debug 'readabilityでページ全体を処理'
+        extracted_html = extract_with_readability(html_content)
+        extraction_method = "#{fetch_method}+readability"
+      else
+        # ページ全体（body）をそのまま使用
+        log_debug 'ページ全体（body）を処理'
+        extracted_html = extract_body(html_content)
+        extraction_method = "#{fetch_method}+body"
+      end
+    end
+
+    # 本文抽出失敗時は警告を記録して空で続行
+    if extracted_html.nil? || extracted_html.strip.empty?
+      warnings << 'Content extraction failed'
+      log_debug "[#{index}/#{total}] 本文抽出失敗（警告）: #{url}"
+      extracted_html = ''
+    end
+
+    # タイトル取得
+    title = extract_title(extracted_html) || extract_title(html_content) || rss_title
+
+    # タイトルが空の場合はURLから生成
+    if title.nil? || title.strip.empty?
+      warnings << 'Title extraction failed'
+      log_debug "[#{index}/#{total}] タイトル取得失敗（URLから生成）: #{url}"
+      # URLのパスからタイトルを生成
+      uri = URI.parse(url)
+      title = uri.path.split('/').reject(&:empty?).last || uri.host
+      title = title.gsub(/[-_]/, ' ').gsub(/\.\w+$/, '') # 拡張子を除去、ハイフンをスペースに
+    end
+
+    # メタ情報を抽出（元のHTMLから）
+    author = extract_author(html_content, url)
+    published = extract_published_date(html_content)
+    description = extract_description(html_content)
+
+    # Pandocでマークダウン変換
+    markdown = if extracted_html.empty?
+                 ''
+               else
+                 convert_to_markdown(extracted_html)
+               end
+
+    # Markdown変換失敗時は警告を記録して空で続行
+    if markdown.nil?
+      warnings << 'Pandoc conversion failed'
+      log_debug "[#{index}/#{total}] Markdown変換失敗（警告）: #{url}"
+      markdown = ''
+    else
+      # マークダウンをクリーンアップ
+      markdown = cleanup_markdown(markdown)
+    end
+
+    # 本文が空の場合は警告を記録
+    if markdown.nil? || markdown.strip.empty?
+      unless warnings.include?('Content extraction failed') || warnings.include?('Pandoc conversion failed')
+        warnings << 'Empty body content'
+      end
+      log_debug "[#{index}/#{total}] 本文が空です（警告）: #{url}"
+      markdown = '（本文を取得できませんでした）'
+    end
+
+    # ファイル保存
+    filename = generate_filename(title)
+    output_path = File.join(@output_dir, filename)
+
+    # 同名ファイルが存在する場合はサフィックスを追加
+    counter = 1
+    while File.exist?(output_path)
+      base = filename.sub(/\.md$/, '')
+      filename = "#{base}_#{counter}.md"
+      output_path = File.join(@output_dir, filename)
+      counter += 1
+    end
+
+    # frontmatter付きで保存
+    created_date = Time.now.strftime('%Y-%m-%d')
+    escaped_title = title.gsub('"', '\\"')
+    escaped_description = description ? description.gsub('"', '\\"').gsub("\n", ' ').strip : ''
+
+    frontmatter_lines = []
+    frontmatter_lines << '---'
+    frontmatter_lines << "title: \"#{escaped_title}\""
+    frontmatter_lines << "source: \"#{url}\""
+    frontmatter_lines << 'author:'
+    frontmatter_lines << "  - \"[[#{author || 'Unknown'}]]\""
+    frontmatter_lines << "published: #{published}" if published
+    frontmatter_lines << "created: #{created_date}"
+    frontmatter_lines << "description: \"#{escaped_description}\"" unless escaped_description.empty?
+    unless warnings.empty?
+      frontmatter_lines << 'extraction_warnings:'
+      warnings.each { |w| frontmatter_lines << "  - \"#{w}\"" }
+    end
+    frontmatter_lines << 'tags:'
+    frontmatter_lines << '  - "clippings"'
+    frontmatter_lines << '---'
+
+    content = frontmatter_lines.join("\n") + "\n\n#{markdown}"
+
+    File.write(output_path, content)
+
+    # 取得結果をログ出力
+    truncated_title = title.to_s.length > 30 ? "#{title[0, 30]}..." : title.to_s
+    log_info "[#{index}/#{total}] 取得結果: method=#{extraction_method}, title=#{truncated_title}"
+    if warnings.empty?
+      log_progress "[#{index}/#{total}] 保存完了: #{filename}"
+    else
+      log_progress "[#{index}/#{total}] 保存完了（警告あり: #{warnings.join(', ')}）: #{filename}"
+    end
+    add_to_history(url, 'success', title, filename, nil, warnings)
+    :success
+  end
+
+  def fetch_url(url)
+    @last_fetch_error = nil
+    uri = URI.parse(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = uri.scheme == 'https'
+    http.open_timeout = 30
+    http.read_timeout = 30
+
+    request = Net::HTTP::Get.new(uri.request_uri)
+    request['User-Agent'] = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
+
+    response = http.request(request)
+
+    # リダイレクト対応
+    return fetch_url(response['location']) if response.is_a?(Net::HTTPRedirection)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      @last_fetch_error = "HTTP #{response.code} #{response.message}"
+      return nil
+    end
+
+    body = response.body
+    # エンコーディングを検出してUTF-8に変換
+    body.force_encoding('UTF-8')
+    unless body.valid_encoding?
+      body.force_encoding('Shift_JIS')
+      body = body.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+    end
+    body
+  rescue StandardError => e
+    @last_fetch_error = e.message
+    log_error "HTTP取得エラー: #{e.message}"
+    nil
+  end
+
+  def fetch_with_playwright(url)
+    @last_fetch_error = nil
+    unless PLAYWRIGHT_AVAILABLE
+      @last_fetch_error = 'Playwright unavailable'
+      log_error 'Playwright が利用できません'
+      return nil
+    end
+
+    log_debug "Playwright でページを取得: #{url}"
+
+    # 一時ファイルにスクリプトを保存して実行
+    Tempfile.create(['playwright', '.js']) do |script_file|
+      script = <<~JS
+        const { chromium } = require('playwright');
+
+        const url = process.argv[2];
+        const timeout = parseInt(process.argv[3], 10) || 30000;
+
+        (async () => {
+          const browser = await chromium.launch({ headless: true });
+          const context = await browser.newContext({
+            userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+          });
+          const page = await context.newPage();
+          try {
+            await page.goto(url, {
+              waitUntil: 'domcontentloaded',
+              timeout: timeout
+            });
+            // ページ読み込み後、JSレンダリング完了を待機
+            // ツイートコンテンツが読み込まれるまで待つ（最大10秒）
+            try {
+              await page.waitForSelector('article[data-testid="tweet"]', { timeout: 10000 });
+            } catch {
+              // セレクタが見つからなくても続行（他のサイト対応）
+              await page.waitForTimeout(3000);
+            }
+            const html = await page.content();
+            console.log(html);
+          } catch (e) {
+            console.error('Error:', e.message);
+            process.exit(1);
+          } finally {
+            await browser.close();
+          }
+        })();
+      JS
+
+      script_file.write(script)
+      script_file.flush
+
+      # グローバルにインストールされた playwright を使用
+      # NODE_PATH を設定してグローバルモジュールを参照
+      global_node_modules = `npm root -g`.strip
+      stdout, stderr, status = Open3.capture3(
+        { 'NODE_PATH' => global_node_modules, 'NODE_NO_WARNINGS' => '1' },
+        'node', script_file.path, url, PLAYWRIGHT_TIMEOUT.to_s
+      )
+
+      unless status.success?
+        @last_fetch_error = stderr.lines.first&.strip || 'Playwright error'
+        log_error "Playwright 取得エラー: #{stderr}"
+        return nil
+      end
+
+      html = stdout
+      html.force_encoding('UTF-8')
+      html = html.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?') unless html.valid_encoding?
+
+      return html
+    end
+  rescue StandardError => e
+    @last_fetch_error = e.message
+    log_error "Playwright エラー: #{e.message}"
+    nil
+  end
+
+  def extract_with_selector(html_content, config)
+    return nil unless NOKOGIRI_AVAILABLE
+
+    doc = Nokogiri::HTML(html_content)
+    selector = config['selector']
+    remove_selectors = config['remove'] || []
+
+    # メインコンテンツを取得
+    content = doc.at_css(selector)
+    return nil unless content
+
+    # 不要な要素を削除
+    remove_selectors.each do |remove_sel|
+      content.css(remove_sel).each(&:remove)
+    end
+
+    # 不要なタグを削除してテキストを整理
+    clean_html(content)
+  rescue StandardError => e
+    log_debug "セレクタ抽出エラー: #{e.message}"
+    nil
+  end
+
+  def clean_html(node)
+    # script, style, nav, footer, header, aside を削除
+    node.css('script, style, nav, footer, header, aside, noscript, iframe').each(&:remove)
+
+    # figureタグの処理（data:imageのimgは除去、テキストは残す）
+    node.css('figure').each do |figure|
+      img = figure.at_css('img')
+      if img && img['src']&.start_with?('data:')
+        # data:image の場合は img を alt テキストに置き換え
+        alt_text = img['alt']
+        if alt_text && !alt_text.strip.empty?
+          img.replace(Nokogiri::XML::Text.new(alt_text, node.document))
+        else
+          img.remove
+        end
+      end
+      # figure タグを子要素に置き換え（画像とテキストを残す）
+      figure.replace(figure.children)
+    end
+
+    # data:image の img タグを alt テキストに置き換え（figure 外のものも対象）
+    node.css('img').each do |img|
+      next unless img['src']&.start_with?('data:')
+
+      alt_text = img['alt']
+      if alt_text && !alt_text.strip.empty?
+        img.replace(Nokogiri::XML::Text.new(alt_text, node.document))
+      else
+        img.remove
+      end
+    end
+
+    # divタグを除去（子要素は保持）- 複数回実行してネストに対応
+    3.times do
+      node.css('div').each do |el|
+        el.replace(el.children)
+      end
+    end
+
+    # spanタグを除去（子要素は保持）
+    node.css('span').each do |el|
+      el.replace(el.children)
+    end
+
+    # 空のpタグを削除
+    node.css('p').each do |el|
+      el.remove if el.text.strip.empty? && el.css('img').empty?
+    end
+
+    # コメントを削除
+    node.xpath('//comment()').each(&:remove)
+
+    # 属性を整理（classやstyleを削除）
+    node.css('*').each do |el|
+      # attribute_nodes は配列のスナップショットなので、走査中の削除でも安全
+      el.attribute_nodes.each do |attr|
+        # href, src, alt, title 以外の属性を削除
+        el.remove_attribute(attr.name) unless %w[href src alt title].include?(attr.name)
+      end
+    end
+
+    node.to_html
+  end
+
+  def extract_with_readability(html_content)
+    Tempfile.create(['input', '.html']) do |input_file|
+      input_file.write(html_content)
+      input_file.flush
+
+      stdout, _, status = Open3.capture3('readable', input_file.path)
+
+      return nil unless status.success?
+
+      # Nokogiriでクリーンアップ
+      if NOKOGIRI_AVAILABLE
+        doc = Nokogiri::HTML(stdout)
+        body = doc.at_css('body') || doc
+        return clean_html(body)
+      end
+
+      stdout
+    end
+  rescue StandardError => e
+    log_error "Readabilityエラー: #{e.message}"
+    nil
+  end
+
+  def extract_body(html_content)
+    return nil unless NOKOGIRI_AVAILABLE
+
+    doc = Nokogiri::HTML(html_content)
+    body = doc.at_css('body')
+    return nil unless body
+
+    clean_html(body)
+  rescue StandardError => e
+    log_error "Body抽出エラー: #{e.message}"
+    nil
+  end
+
+  def extract_title(html)
+    # Nokogiriで抽出を試みる
+    if NOKOGIRI_AVAILABLE
+      doc = Nokogiri::HTML(html)
+      title_el = doc.at_css('title') || doc.at_css('h1')
+      return decode_html_entities(title_el.text.strip) if title_el
+    end
+
+    # 正規表現でフォールバック
+    match = html.match(%r{<title>(.+?)</title>}im)
+    return nil unless match
+
+    decode_html_entities(match[1].strip)
+  end
+
+  def extract_author(html, url)
+    return nil unless NOKOGIRI_AVAILABLE
+
+    doc = Nokogiri::HTML(html)
+
+    # 1. meta author を試す
+    author_meta = doc.at_css('meta[name="author"]')
+    if author_meta && author_meta['content'] && !author_meta['content'].strip.empty?
+      return decode_html_entities(author_meta['content'])
+    end
+
+    # 2. og:site_name を試す
+    site_name = doc.at_css('meta[property="og:site_name"]')
+    if site_name && site_name['content'] && !site_name['content'].strip.empty?
+      return decode_html_entities(site_name['content'])
+    end
+
+    # 3. ドメイン名をフォールバック
+    uri = URI.parse(url)
+    uri.host.sub(/^www\./, '')
+  rescue StandardError => e
+    log_debug "著者抽出エラー: #{e.message}"
+    nil
+  end
+
+  def extract_published_date(html)
+    return nil unless NOKOGIRI_AVAILABLE
+
+    doc = Nokogiri::HTML(html)
+
+    # article:published_time
+    published = doc.at_css('meta[property="article:published_time"]')
+    return parse_date(published['content']) if published && published['content']
+
+    # datePublished (JSON-LD)
+    doc.css('script[type="application/ld+json"]').each do |script|
+      json = JSON.parse(script.text)
+      date = json['datePublished'] || json['@graph']&.find { |g| g['datePublished'] }&.dig('datePublished')
+      return parse_date(date) if date
+    rescue JSON::ParserError
+      next
+    end
+
+    # time要素のdatetime属性
+    time_el = doc.at_css('time[datetime]')
+    return parse_date(time_el['datetime']) if time_el && time_el['datetime']
+
+    nil
+  rescue StandardError => e
+    log_debug "公開日抽出エラー: #{e.message}"
+    nil
+  end
+
+  def parse_date(date_str)
+    return nil if date_str.nil? || date_str.strip.empty?
+
+    # ISO8601形式から日付部分を抽出
+    Time.parse(date_str).strftime('%Y-%m-%d')
+  rescue StandardError
+    nil
+  end
+
+  def extract_description(html)
+    return nil unless NOKOGIRI_AVAILABLE
+
+    doc = Nokogiri::HTML(html)
+
+    # og:description
+    og_desc = doc.at_css('meta[property="og:description"]')
+    return decode_html_entities(og_desc['content']) if og_desc && og_desc['content'] && !og_desc['content'].strip.empty?
+
+    # meta description
+    meta_desc = doc.at_css('meta[name="description"]')
+    if meta_desc && meta_desc['content'] && !meta_desc['content'].strip.empty?
+      return decode_html_entities(meta_desc['content'])
+    end
+
+    nil
+  rescue StandardError => e
+    log_debug "説明抽出エラー: #{e.message}"
+    nil
+  end
+
+  def decode_html_entities(text)
+    return nil if text.nil? || text.strip.empty?
+
+    text = text.encode('UTF-8', invalid: :replace, undef: :replace, replace: '?')
+    text.gsub!('&amp;', '&')
+    text.gsub!('&lt;', '<')
+    text.gsub!('&gt;', '>')
+    text.gsub!('&quot;', '"')
+    text.gsub!('&#39;', "'")
+    text.gsub!('&nbsp;', ' ')
+    text.gsub!(/&#(\d+);/) do
+      [::Regexp.last_match(1).to_i].pack('U')
+    rescue StandardError
+      '?'
+    end
+    text.gsub!(/&#x([0-9a-fA-F]+);/i) do
+      [::Regexp.last_match(1).to_i(16)].pack('U')
+    rescue StandardError
+      '?'
+    end
+    text.strip
+  end
+
+  def convert_to_markdown(html_content)
+    Tempfile.create(['input', '.html']) do |input_file|
+      input_file.write(html_content)
+      input_file.flush
+
+      stdout, _, status = Open3.capture3('pandoc', '-f', 'html', '-t', 'gfm', input_file.path)
+
+      return nil unless status.success?
+
+      stdout
+    end
+  rescue StandardError => e
+    log_error "Pandocエラー: #{e.message}"
+    nil
+  end
+
+  def cleanup_markdown(markdown)
+    # frozen_string_literal 環境では空文字リテラル等が freeze されているため、
+    # gsub! で破壊的変更する前に複製して mutable にする
+    markdown = markdown.dup
+
+    # data:image のインライン画像を除去（base64データは長くて見にくいため）
+    markdown.gsub!(/!\[[^\]]*\]\(data:[^)]+\)/, '')
+
+    # HTMLコメントを除去
+    markdown.gsub!(/<!--.*?-->/m, '')
+
+    # HTMLタグを除去（開始タグと終了タグ）
+    markdown.gsub!(/<div[^>]*>/i, '')
+    markdown.gsub!(%r{</div>}i, '')
+    markdown.gsub!(/<span[^>]*>/i, '')
+    markdown.gsub!(%r{</span>}i, '')
+    markdown.gsub!(/<section[^>]*>/i, '')
+    markdown.gsub!(%r{</section>}i, '')
+    markdown.gsub!(/<article[^>]*>/i, '')
+    markdown.gsub!(%r{</article>}i, '')
+
+    # 連続する空行を1つに
+    markdown.gsub!(/\n{3,}/, "\n\n")
+
+    # 空白のみの行を空行に
+    markdown.gsub!(/^[[:blank:]]+$/, '')
+
+    # 見出しの前後に適度な空行を確保
+    markdown.gsub!(/\n*(^\#{1,6}\s)/m, "\n\n\\1")
+    markdown.gsub!(/(^\#{1,6}\s.+)\n*/m, "\\1\n\n")
+
+    # リストの前に空行を確保（見出し直後を除く）
+    markdown.gsub!(/([^\n])\n([-*+]\s)/m, "\\1\n\n\\2")
+
+    # コードブロックの前後に空行
+    markdown.gsub!(/\n*(```)/m, "\n\n\\1")
+    markdown.gsub!(/(```)\n*/m, "\\1\n\n")
+
+    # 連続する空行を再度1つに
+    markdown.gsub!(/\n{3,}/, "\n\n")
+
+    # 行頭・行末の空白を整理
+    lines = markdown.lines.map(&:rstrip)
+    markdown = lines.join("\n")
+
+    # 先頭・末尾の空行を削除
+    markdown.strip!
+
+    markdown
+  end
+
+  def generate_filename(title)
+    # ISO8601形式をファイル名用に調整（コロン除去、+を_に）
+    date_prefix = Time.now.iso8601.gsub(':', '').gsub('+', '_')
+
+    # エンコーディングを正規化し、無効なバイトを除去
+    safe_title = title.dup
+    safe_title = safe_title.encode('UTF-8', invalid: :replace, undef: :replace, replace: '_')
+
+    # サニタイズ
+    safe_title.gsub!(%r{[/\\:*?"<>|#]}, '_')
+    safe_title.gsub!(/[[:cntrl:]]/, '') # 制御文字を除去
+    safe_title.gsub!(/[\s　]+/, '_') # 半角・全角スペースを_に変換
+    safe_title.gsub!(/_+/, '_') # 連続するアンダースコアを1つに
+    safe_title.strip!
+    safe_title.gsub!(/^_+|_+$/, '') # 先頭・末尾のアンダースコアを除去
+
+    # 空になった場合はデフォルト名
+    safe_title = 'untitled' if safe_title.empty?
+
+    # 長さ制限
+    safe_title = safe_title[0, MAX_TITLE_LENGTH] if safe_title.length > MAX_TITLE_LENGTH
+
+    "#{date_prefix}_#{safe_title}.md"
+  end
+
+  def load_history
+    return { 'entries' => [] } unless File.exist?(@history_file)
+
+    YAML.load_file(@history_file) || { 'entries' => [] }
+  rescue StandardError => e
+    log_error "履歴ファイル読み込みエラー: #{e.message}"
+    { 'entries' => [] }
+  end
+
+  def save_history(history)
+    File.write(@history_file, history.to_yaml)
+  end
+
+  def already_fetched?(url)
+    history = load_history
+    history['entries'].any? { |e| e['url'] == url && e['status'] == 'success' }
+  end
+
+  def add_to_history(url, status, title, output_file, error_message, warnings = [])
+    history = load_history
+
+    # 既存のエントリを削除
+    history['entries'].reject! { |e| e['url'] == url }
+
+    # 新しいエントリを追加
+    entry = {
+      'url' => url,
+      'status' => status,
+      'fetched_at' => Time.now.strftime('%Y-%m-%dT%H:%M:%S%z'),
+      'title' => title,
+      'output_file' => output_file,
+      'error_message' => error_message
+    }
+    entry['warnings'] = warnings unless warnings.empty?
+
+    history['entries'] << entry
+
+    save_history(history)
+  end
+end
+
+# スクリプトの実行
+HatebuToMarkdown.new.run(ARGV) if __FILE__ == $PROGRAM_NAME

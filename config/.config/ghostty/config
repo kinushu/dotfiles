@@ -10,9 +10,10 @@ quick-terminal-autohide = true
 window-padding-x = 0
 window-padding-y = 0
 window-padding-balance = true
-background-opacity = 0.85
+background-opacity = 0.90
 background-blur-radius = 20
 macos-titlebar-style = transparent
+unfocused-split-opacity = 0.70
 
 font-family = UDEV Gothic NF
 font-size = 14

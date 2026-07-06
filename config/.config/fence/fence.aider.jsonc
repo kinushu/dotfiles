@@ -1,0 +1,162 @@
+// fence config for aider-chat
+// 根拠 ADR: docs/adr/2026-05-28_1000_introduce_ollama_as_local_cli_chat.md
+//
+// 目的:
+//   ローカル LLM (Ollama) で動く aider のハルシネーション暴走から、
+//   プロジェクト外（~/.ssh, ~/.aws, 他リポジトリ等）を OS レイヤで保護する。
+//   aider 自身の対話確認に加えて、fence による多層防御を構成する。
+//
+// 起動方法:
+//   ~/bin/aider-safe ラッパー経由（git リポジトリルートからの起動を強制）
+//   実体: fence --settings ~/.config/fence/fence.aider.jsonc -- aider ...
+//
+// 設計方針:
+//   - 既存の ~/.config/fence/fence.json（Claude/Codex 用）を壊さない
+//   - 書込許可は CWD（起動時のプロジェクトルート）と aider 履歴/キャッシュのみ
+//   - 既存テンプレート由来の denyRead/denyWrite/command.deny を維持
+//   - Ollama API は localhost なのでネットワーク許可は最小限
+//
+// 既存 fence.json との差分（aider 用に絞った変更）:
+//   1. filesystem.allowWrite: ~/.claude*, ~/.codex/**, ~/.cursor/** 等の他エージェント用パスを除外
+//   2. filesystem.allowWrite: aider 履歴用に ~/.aider/** を追加
+//   3. network.allowedDomains: aider 用に縮小（pypi/github/litellm 関連 + ollama 周辺のみ）
+{
+  "allowPty": true,
+  "network": {
+    "allowLocalBinding": true,
+    "allowLocalOutbound": true,
+    "allowedDomains": [
+      // aider のモデル一覧取得・自己アップデート関連
+      "pypi.org",
+      "files.pythonhosted.org",
+
+      // git 操作で必要になる可能性のあるホスト
+      "github.com",
+      "api.github.com",
+      "raw.githubusercontent.com",
+      "codeload.github.com",
+      "objects.githubusercontent.com",
+      "gitlab.com",
+
+      // litellm の model price 情報 (aider が読みに行く場合)
+      "raw.githubusercontent.com"
+    ],
+
+    "deniedDomains": [
+      // Cloud メタデータ API (資格情報窃取防止)
+      "169.254.169.254",
+      "metadata.google.internal",
+      "instance-data.ec2.internal",
+
+      // テレメトリ
+      "*.sentry.io"
+    ]
+    // Ollama API は localhost (127.0.0.1:11434) なので allowLocalOutbound で許可される
+  },
+
+  "filesystem": {
+    "allowWrite": [
+      // 起動時の CWD = プロジェクトルート（aider-safe ラッパーが git root を保証）
+      ".",
+
+      // 一時ファイル
+      "/tmp",
+
+      // aider の履歴・キャッシュ
+      "~/.aider/**",
+      "~/.aider.tags.cache.v*/**",
+      "~/.aider.chat.history.*",
+      "~/.aider.input.history",
+
+      // litellm / Python パッケージのキャッシュ
+      "~/.cache/litellm/**",
+      "~/.cache/aider/**",
+      "~/.cache/pip/**"
+
+      // 注意: ~/.claude*, ~/.codex/**, ~/.cursor/**, ~/.config/** など他エージェント用の
+      //       書込許可は意図的に含めない。aider はそれらを書く必要がない。
+    ],
+
+    "denyWrite": [
+      // 環境変数ファイル（秘密値）
+      "**/.env",
+      "**/.env.*",
+
+      // 鍵・証明書
+      "**/*.key",
+      "**/*.pem",
+      "**/*.p12",
+      "**/*.pfx"
+    ],
+
+    "denyRead": [
+      // SSH 秘密鍵・設定
+      "~/.ssh/id_*",
+      "~/.ssh/config",
+      "~/.ssh/*.pem",
+
+      // GPG
+      "~/.gnupg/**",
+
+      // クラウドプロバイダ資格情報
+      "~/.aws/**",
+      "~/.config/gcloud/**",
+      "~/.kube/**",
+
+      // パッケージマネージャの認証トークン
+      "~/.pypirc",
+      "~/.netrc",
+      "~/.git-credentials",
+      "~/.cargo/credentials",
+      "~/.cargo/credentials.toml"
+    ]
+  },
+
+  "command": {
+    "useDefaults": true,
+    "deny": [
+      // Git のリモート影響系コマンド（ローカル LLM が暴走しても push させない）
+      "git push",
+      "git reset",
+      "git clean",
+      "git checkout --",
+      "git rebase",
+      "git merge",
+
+      // パッケージ公開系
+      "npm publish",
+      "pnpm publish",
+      "yarn publish",
+      "cargo publish",
+      "twine upload",
+      "gem push",
+
+      // 権限昇格
+      "sudo",
+
+      // GitHub CLI のリモート影響系
+      "gh pr create",
+      "gh pr merge",
+      "gh pr close",
+      "gh pr reopen",
+      "gh pr review",
+      "gh pr comment",
+      "gh release create",
+      "gh release delete",
+      "gh repo create",
+      "gh repo fork",
+      "gh repo delete",
+      "gh issue create",
+      "gh issue close",
+      "gh issue comment",
+      "gh gist create",
+      "gh workflow run",
+      "gh api",
+      "gh auth login",
+      "gh secret set",
+      "gh secret delete",
+      "gh variable set",
+      "gh variable delete"
+    ]
+  }
+}

@@ -23,6 +23,9 @@ deploy-dry-run: ## Dry-run deploy (show what would be done)
 check-links: ## Check for unlinked files in config/
 	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/check_links.sh
 
+diff-links: ## Show diff between expected and actual symlinks
+	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/check_links.sh --diff
+
 init: deploy ## Setup environment settings
 	@echo '==> Setup environment settings.'
 	@echo ''
@@ -32,17 +35,23 @@ test: ## Test dotfiles and init scripts
 	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/test/test.sh
 
 update: ## Fetch changes for this repo
-	git pull origin main
+ifeq ($(CI),)
+	git pull
 	git submodule init
 	git submodule update
-	git submodule foreach git pull origin main
-	brew update
+	git submodule foreach git pull
+endif
 
 install: update deploy init ## Run make update, deploy, init
 	@exec $$SHELL
 
 upgrade: update ## Upgrade modules
 	@DOTPATH=$(DOTPATH) zsh $(DOTPATH)/etc/upgrade/upgrade.sh
+
+clean: ## Remove all symlinks
+	@echo '==> Remove all symlinks from home directory.'
+	@echo ''
+	@DOTPATH=$(DOTPATH) bash $(DOTPATH)/etc/clean.sh
 
 help: ## Self-documented Makefile
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \

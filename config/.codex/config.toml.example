@@ -1,0 +1,13 @@
+# Codex user-level configuration template for this repository setup.
+# This file is copied to ~/.codex/config.toml on first deploy.
+# Command allow/deny details are enforced via .codex/rules/*.rules.
+
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+project_doc_max_bytes = 32768
+web_search = "live"
+
+[sandbox_workspace_write]
+network_access = true
+
+[tui.model_availability_nux]

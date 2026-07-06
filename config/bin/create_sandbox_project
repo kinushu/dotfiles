@@ -19,6 +19,14 @@ class SandboxProjectCreator
       exit 1
     end
 
+    # boilerplate として展開する Git リポジトリの URL を環境変数から取得
+    git_clone_url = ENV.fetch('SANDBOX_BOILERPLATE_URL', nil)
+    if git_clone_url.nil? || git_clone_url.empty?
+      puts '環境変数 SANDBOX_BOILERPLATE_URL が未設定です。'
+      puts '使い方: SANDBOX_BOILERPLATE_URL=<boilerplateのgit URL> create_sandbox_project <プロジェクト名>'
+      exit 1
+    end
+
     project_name = ARGV[0]
     current_year = Date.today.year
     current_month = Date.today.strftime('%Y-%m-%d')
@@ -43,9 +51,8 @@ class SandboxProjectCreator
 
         system("git init && touch README.md && git add . && git commit -m 'init'")
 
-        # git@github.com:kinushu/sandbox_boilerplate.git の最新の内容を展開し、改めて git 履歴をクリアしてから、 git init して開発開始状態とする。
-
-        git_clone_url = 'git@github.com:kinushu/sandbox_boilerplate.git'
+        # 環境変数 SANDBOX_BOILERPLATE_URL で指定した Git リポジトリの最新の内容を展開し、
+        # 改めて git 履歴をクリアしてから、 git init して開発開始状態とする。
 
         # 一時ディレクトリを使用してクローン
         Dir.mktmpdir('boilerplate') do |temp_dir|

@@ -1,3 +1,17 @@
 {
-  "platform": "darwin"
+  "directory_links": [
+    ".agents",
+    ".claude/commands",
+    ".claude/skills",
+    ".claude/hooks",
+    ".claude/agents",
+    "bin"
+  ],
+  "alias_links": {},
+  "template_copy_targets": [
+    {
+      "source": ".codex/config.toml.example",
+      "destination": ".codex/config.toml"
+    }
+  ]
 }

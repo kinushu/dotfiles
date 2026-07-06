@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""画像ファイルからQRコードをデコードするコマンド。
+
+zbarimg が macOS 環境でクラッシュする問題の代替として、OpenCV の
+QRCodeDetector を利用してQRコードを読み取る。
+
+使い方:
+    qrdecode 画像ファイル [画像ファイル ...]
+
+複数QRの検出を試み、失敗した場合は前処理（拡大・二値化）を行って再試行する。
+"""
+
+import sys
+
+
+def usage_and_exit(code: int) -> None:
+    print("使い方: qrdecode 画像ファイル [画像ファイル ...]", file=sys.stderr)
+    sys.exit(code)
+
+
+def decode(path: str) -> list[str]:
+    """1枚の画像からQRコードの文字列リストを返す。"""
+    try:
+        import cv2
+    except ImportError:
+        print(
+            "エラー: opencv-python が見つかりません。"
+            "`python3 -m pip install opencv-python-headless` を実行してください。",
+            file=sys.stderr,
+        )
+        sys.exit(3)
+
+    img = cv2.imread(path)
+    if img is None:
+        print(f"エラー: 画像を読み込めません: {path}", file=sys.stderr)
+        return []
+
+    detector = cv2.QRCodeDetector()
+
+    # まずは複数QR対応で検出を試みる。
+    ok, decoded, _pts, _ = detector.detectAndDecodeMulti(img)
+    results = [s for s in decoded if s] if ok else []
+
+    # 検出できなければ単一QRとして再試行。
+    if not results:
+        data, _pts, _ = detector.detectAndDecode(img)
+        if data:
+            results = [data]
+
+    # それでもダメなら前処理（拡大＋大津の二値化）して再試行。
+    if not results:
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        gray = cv2.resize(gray, None, fx=2, fy=2, interpolation=cv2.INTER_CUBIC)
+        _, binary = cv2.threshold(gray, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+        data, _pts, _ = detector.detectAndDecode(binary)
+        if data:
+            results = [data]
+
+    return results
+
+
+def main() -> None:
+    args = sys.argv[1:]
+    if not args or args[0] in ("-h", "--help"):
+        usage_and_exit(0 if args else 1)
+
+    exit_code = 0
+    multiple_files = len(args) > 1
+    for path in args:
+        results = decode(path)
+        if not results:
+            print(f"{path}: QRコードを検出できませんでした", file=sys.stderr)
+            exit_code = 1
+            continue
+        for data in results:
+            print(f"{path}: {data}" if multiple_files else data)
+
+    sys.exit(exit_code)
+
+
+if __name__ == "__main__":
+    main()

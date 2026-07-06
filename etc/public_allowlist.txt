@@ -1,0 +1,89 @@
+# public_allowlist.txt
+#
+# public リポジトリへ展開してよいパスパターンの許可リスト。
+# 既定は非公開（このファイルにマッチしないパスは公開不可として扱う）。
+# `etc/check_public.sh` がこのファイルを読み込み、ステージ済みファイルと突合する。
+#
+# 記法:
+#   - 行頭 `#` はコメント、空行は無視する
+#   - `*` は任意の文字列（パス区切り `/` を含む）にマッチする
+#     （bash の `[[ str == pattern ]]` による文字列マッチのため、
+#       ディレクトリ配下を丸ごと許可する場合は末尾を `/*` とする）
+
+# トップレベル共通ファイル
+.claude/settings.json
+.claude/skills/read-hatebu-radio/*
+.gitallowed
+config.local.yml.example
+.github/workflows/main.yml
+.gitignore
+.rubocop.yml
+AGENTS.md
+Brewfile
+CLAUDE.md
+Makefile
+node.json
+README.md
+
+# ユーザー向けスクリプト
+bin/*
+
+# config/ 配下（summarize-work スキルおよび read-hatebu-radio スキルを除く）
+config/.agents/AGENTS.md
+config/.agents/skills/audit-claude-config/*
+config/.agents/skills/commit-changes/*
+config/.agents/skills/create-adr/*
+config/.agents/skills/investigate-domain/*
+config/.agents/skills/research-topic/*
+config/.agents/skills/review-code/*
+config/.aider.conf.yml
+config/.bash_profile
+config/.bashrc
+config/.claude/agents/*
+config/.claude/CLAUDE.md
+config/.claude/hooks/*
+config/.claude/settings.json
+config/.claude/skills/audit-claude-config/*
+config/.claude/skills/code-review/*
+config/.claude/skills/commit-changes/*
+config/.claude/skills/commit-message/*
+config/.claude/skills/create_adr/*
+config/.claude/skills/create-adr/*
+config/.claude/skills/delegate-by-model/*
+config/.claude/skills/empirical-prompt-tuning/*
+config/.claude/skills/implement-by-codex/*
+config/.claude/skills/investigate-domain/*
+config/.claude/skills/research-topic/*
+config/.claude/skills/review-by-codex/*
+config/.claude/skills/review-code/*
+config/.claude/statusline-command.sh
+config/.codex/AGENTS.md
+config/.codex/config.toml.example
+config/.codex/rules/*
+config/.config/fence/*
+config/.config/ghostty/config
+config/.config/mise/config.toml
+config/.config/uv/uv.toml
+config/.gitignore_global
+config/.npmrc
+config/.tmux.conf
+config/.zshrc
+config/bin/*
+
+# Mitamae レシピ・ロール
+cookbooks/*
+roles/*
+
+# 保守・運用スクリプト
+etc/*
+
+# docs/adr（公開 8 件 + README のみ。それ以外の ADR は非公開）
+docs/adr/README.md
+docs/adr/2026-01-02_deploy-dry-run-and-link-check.md
+docs/adr/2026-01-23_add_directory_link_mode.md
+docs/adr/2026-01-29_prevent_sleep_during_claude_cli.md
+docs/adr/2026-02-28_improve_check_links_with_directory_links_and_diff_output.md
+docs/adr/2026-03-04_move_user_scripts_to_config_bin.md
+docs/adr/2026-04-01_npm_security_settings_against_supply_chain_attack.md
+docs/adr/2026-04-02_generate_local_codex_config_from_template_on_deploy.md
+docs/adr/2026-07-03_1745_split_deploy_and_init_by_os_with_mitamae_roles.md

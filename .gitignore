@@ -55,3 +55,10 @@ log/*
 !log/.keep
 
 bin/mitamae
+
+# aider が CWD に作成する履歴・キャッシュ（プロジェクトルート直下のみマッチ）
+# config/.aider.conf.yml などサブディレクトリ配下の管理対象は除外しない
+/.aider*
+
+# scheduled_tasks のローカル設定（プロジェクトルート直下。テンプレートは config.local.yml.example）
+/config.local.yml

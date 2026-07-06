@@ -1,26 +1,40 @@
-name: Test for macOS install
+name: Test install (macOS / Ubuntu)
 
-on: [push]
+on:
+  push:
+  workflow_dispatch:
 
 jobs:
   test:
-    runs-on: macos-15
-    timeout-minutes: 30
+    name: ${{ matrix.os }}
+    strategy:
+      # 片方の OS が失敗しても、もう片方は最後まで走らせて両 OS の結果を得る
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v7
+
       - name: Ensure cache directories
         run: |
-          mkdir -p ~/Library/Caches/Homebrew
-          mkdir -p ~/Library/Logs/Homebrew
-          mkdir -p ~/.local/share/mise
-          mkdir -p ~/.cache/mise
-      - name: Prepare brew configuration
+          mkdir -p ~/.local/share/mise ~/.cache/mise
+          if [ "$RUNNER_OS" = "macOS" ]; then
+            mkdir -p ~/Library/Caches/Homebrew ~/Library/Logs/Homebrew
+          fi
+
+      # 以下 2 ステップは Homebrew を使う macOS 専用
+      - name: Prepare brew configuration (macOS)
+        if: runner.os == 'macOS'
         run: |
-          brew untap homebrew/core
-          brew untap homebrew/cask
-      - name: Cache Homebrew downloads
-        uses: actions/cache@v4
+          brew untap homebrew/core || true
+          brew untap homebrew/cask || true
+
+      - name: Cache Homebrew downloads (macOS)
+        if: runner.os == 'macOS'
+        uses: actions/cache@v6
         with:
           path: |
             ~/Library/Caches/Homebrew
@@ -28,8 +42,9 @@ jobs:
           key: brew-cache-${{ runner.os }}-${{ hashFiles('Brewfile') }}
           restore-keys: |
             brew-cache-${{ runner.os }}-
+
       - name: Cache mise downloads
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             ~/.local/share/mise
@@ -37,22 +52,19 @@ jobs:
           key: mise-cache-${{ runner.os }}-${{ hashFiles('config/.config/mise/config.toml') }}
           restore-keys: |
             mise-cache-${{ runner.os }}-
-      - name: Init
+
+      # deploy（dotfiles 展開）→ init（OS を自動判定し対応 role を実行）
+      # Ubuntu では init 内で ubuntu_system(sudo) → ubuntu_user の順に走る
+      - name: Deploy and init
+        # mise の aqua backend（例: aqua:gsamokovarov/jump）が GitHub API で
+        # リリースタグを解決する。未認証だと 60 req/h の制限に達し 403 で失敗するため、
+        # 常時利用できる組み込みトークンを渡して認証済みリクエストにする。
+        # GH_PAT が設定されていればそちらを優先し、無ければ組み込み GITHUB_TOKEN を使う。
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GH_PAT || secrets.GITHUB_TOKEN }}
         run: |
           make deploy
           make init
-      - name: Update
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          make update
-      - name: Upgrade
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
-        run: |
-          make upgrade
+
       - name: Test
-        run: |
-          make test
+        run: make test

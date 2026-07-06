@@ -1,0 +1,94 @@
+#!/bin/zsh
+# aider-safe: aider-chat を fence サンドボックス経由で起動するラッパー
+# 根拠 ADR: docs/adr/2026-05-28_1000_introduce_ollama_as_local_cli_chat.md
+#
+# 目的:
+#   - git リポジトリルートからの起動を強制し、誤って $HOME 等から起動するのを防ぐ
+#   - aider 専用 fence 設定 (fence.aider.jsonc) を経由させ、プロジェクト外への書込を OS レイヤでブロック
+#   - aider 設定 (~/.aider.conf.yml がなくても) を dotfiles 内 config から読み込む
+#
+# 使い方:
+#   cd <git repo root>
+#   aider-safe                                   # 既定モデル (qwen3:8b)
+#   aider-safe --model ollama/qwen2.5-coder:14b  # モデル切替
+
+set -euo pipefail
+
+# シンボリンク解決済みの本スクリプト絶対パス（dotfiles/config/bin/aider-safe）
+SCRIPT_PATH="${0:A}"
+SCRIPT_DIR="${SCRIPT_PATH:h}"
+
+# dotfiles/config/ ディレクトリ
+CONFIG_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+
+FENCE_SETTINGS="${CONFIG_DIR}/.config/fence/fence.aider.jsonc"
+AIDER_CONF="${CONFIG_DIR}/.aider.conf.yml"
+
+# 1. 前提チェック: fence と aider の存在
+if ! command -v fence >/dev/null 2>&1; then
+  echo "aider-safe: 'fence' コマンドが見つかりません。fence をインストールしてください。" >&2
+  exit 127
+fi
+
+if ! command -v aider >/dev/null 2>&1; then
+  echo "aider-safe: 'aider' コマンドが見つかりません。'brew install aider' を実行してください。" >&2
+  exit 127
+fi
+
+# 2. 前提チェック: 設定ファイル
+if [[ ! -f "$FENCE_SETTINGS" ]]; then
+  echo "aider-safe: fence 設定が見つかりません: $FENCE_SETTINGS" >&2
+  exit 1
+fi
+
+if [[ ! -f "$AIDER_CONF" ]]; then
+  echo "aider-safe: aider 設定が見つかりません: $AIDER_CONF" >&2
+  exit 1
+fi
+
+# 3. 起動位置チェック: git リポジトリのルートからのみ許可
+if ! git_root="$(git rev-parse --show-toplevel 2>/dev/null)"; then
+  echo "aider-safe: git リポジトリ内から起動してください（現在: $(pwd)）" >&2
+  exit 1
+fi
+
+current_dir="$(pwd)"
+if [[ "$current_dir" != "$git_root" ]]; then
+  echo "aider-safe: git リポジトリのルート（$git_root）から起動してください（現在: $current_dir）" >&2
+  exit 1
+fi
+
+# 4. Ollama サーバの疎通確認（warning のみ、ブロックはしない）
+if ! curl -sf -o /dev/null --max-time 2 http://localhost:11434/api/tags 2>/dev/null; then
+  echo "aider-safe: warning: Ollama サーバ (http://localhost:11434) に接続できません。" >&2
+  echo "  'open -a Ollama' でアプリを起動するか、'ollama serve' を実行してください。" >&2
+fi
+
+# 5. aider が要求するホーム配下ディレクトリを fence の外で事前作成。
+#    fence サンドボックス内では ~/.aider/** への書込は依然サンドボックス境界に従うため、
+#    AI 暴走時の保護は維持される（ここで作るのはユーザー権限のラッパーが空ディレクトリを
+#    用意するだけで、サンドボックス内のエージェントには新たな権限を与えない）。
+mkdir -p "$HOME/.aider/caches"
+
+# 6. Ollama の API ベース URL を export（litellm/aider 共通の慣例）
+export OLLAMA_API_BASE="${OLLAMA_API_BASE:-http://localhost:11434}"
+
+# 6.1 サンドボックス内では POSIX sh を使わせて、~/.zshrc 経由の oh-my-zsh
+#     ロードによる警告（zcompdump 削除失敗、nice 呼び出し失敗等）を回避する。
+#     aider 内で `!cmd` 等を使う際の shell も /bin/sh になる。
+export SHELL=/bin/sh
+
+# 6.2 万が一 zsh が起動しても oh-my-zsh の auto-update を走らせない
+export DISABLE_AUTO_UPDATE=true
+
+# 7. 共通エージェント指示（~/.agents/AGENTS.md）が存在すれば read-only で読み込む。
+#    全プロジェクト共通の振る舞いガイダンスを aider にも適用するため。
+aider_args=()
+if [[ -f "$HOME/.agents/AGENTS.md" ]]; then
+  aider_args+=(--read "$HOME/.agents/AGENTS.md")
+fi
+
+# 8. fence 経由で aider 起動
+exec fence \
+  --settings "$FENCE_SETTINGS" \
+  -- aider --config "$AIDER_CONF" "${aider_args[@]}" "$@"
